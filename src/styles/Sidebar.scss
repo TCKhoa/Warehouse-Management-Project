@@ -1,0 +1,87 @@
+.sidebar {
+  background-color: #0f172a;
+  color: white;
+  width: 250px;
+  min-height: 100vh;
+  padding: 1rem;
+
+  .sidebar-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    a {
+        color: inherit;
+        text-decoration: none;
+        display: block;
+        cursor: pointer; // Thêm dòng này để hiện con trỏ pointer
+      }
+
+      &:hover {
+        color: #b3bac5;
+      }
+  }
+
+  .sidebar-menu {
+    list-style: none;
+    padding: 0;
+
+    .menu-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: 0.2s;
+
+      a {
+        color: inherit;
+        text-decoration: none;
+        display: block;
+        cursor: pointer; // Thêm dòng này để hiện con trỏ pointer
+      }
+
+      &:hover {
+        background-color: #1e293b;
+      }
+
+      &.has-sub {
+        .menu-label {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .menu-icon {
+          font-size: 18px;
+          font-weight: normal;
+          display: flex;
+          align-items: center;
+        }
+      }
+    }
+
+    .submenu {
+      list-style: none;
+      padding-left: 1.5rem;
+      margin-top: 0.5rem;
+
+      .submenu-item {
+        padding: 0.5rem 0;
+        font-size: 0.95rem;
+        color: #cbd5e1;
+
+        a {
+          color: inherit;
+          text-decoration: none;
+          cursor: pointer; // Thêm dòng này cho link con
+        }
+
+        &:hover {
+          color: white;
+        }
+      }
+    }
+
+    .active {
+      background-color: #2563eb;
+    }
+  }
+}

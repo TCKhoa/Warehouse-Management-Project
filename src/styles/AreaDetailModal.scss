@@ -1,0 +1,68 @@
+.area-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  animation: fadeIn 0.3s ease;
+}
+
+.area-modal {
+  background-color: rgb(68, 162, 199);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  width: 400px;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: scaleIn 0.3s ease;
+}
+
+.close-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  font-size: 1.5rem;
+  color: #ff0000;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.product-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  color: #ffffff;
+}
+
+.no-products {
+  color: #ffffff;
+}
+
+@keyframes fadeIn {
+  from {
+    background-color: rgba(0, 0, 0, 0);
+  }
+  to {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
