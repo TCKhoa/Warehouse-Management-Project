@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { IoChevronDownOutline, IoChevronUpOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import "../styles/Sidebar.scss";
+import logo from "../assets/img/warehouse.png"
 
 export default function Sidebar({ isAdmin }) {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -12,7 +13,11 @@ export default function Sidebar({ isAdmin }) {
 
   return (
     <div className="sidebar">
-      <h1 className="sidebar-title"><Link to="/">📦 Kho hàng</Link></h1>
+      <h1 className="sidebar-logo">
+        <Link to="/">
+        <img src={logo} alt="Logo" className="logo-image" />
+        </Link>
+        </h1>
       <ul className="sidebar-menu">
 
         {/* Dashboard */}

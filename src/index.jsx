@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import './index.scss'; // hoặc index.scss nếu bạn có
+import './styles/index.scss'; // hoặc index.scss nếu bạn có
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

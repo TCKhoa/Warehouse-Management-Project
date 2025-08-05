@@ -2,24 +2,31 @@
   background-color: #0f172a;
   color: white;
   width: 250px;
-  min-height: 100vh;
+  // min-height: 100vh;
   padding: 1rem;
 
-  .sidebar-title {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 2rem;
-    a {
-        color: inherit;
-        text-decoration: none;
-        display: block;
-        cursor: pointer; // Thêm dòng này để hiện con trỏ pointer
-      }
+  .sidebar-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
 
-      &:hover {
-        color: #b3bac5;
-      }
+  a {
+    display: inline-block;
+    text-decoration: none;
   }
+
+  img.logo-image {
+    width: 15vw; // chỉnh kích thước phù hợp
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
 
   .sidebar-menu {
     list-style: none;
