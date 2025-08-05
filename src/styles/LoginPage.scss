@@ -1,0 +1,155 @@
+.login-page {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-container {
+  background-color: rgba(255, 255, 255, 0.88);
+  padding: 3rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+}
+
+.checkbox-container {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+
+  input[type="checkbox"] {
+    margin-right: 0.5rem;
+  }
+}
+
+.forgot-password {
+  margin-top: 1rem;
+
+  a {
+    font-size: 0.9rem;
+    color: #007bff;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Shiny effect
+.shiny-text {
+  font-weight: bold;
+  background: linear-gradient(90deg, #007bff, #00c6ff, #007bff);
+  background-size: 200% auto;
+  color: #fff;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 3s linear infinite;
+}
+
+.shiny-button {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  background: linear-gradient(90deg, #007bff, #00c6ff, #007bff);
+  background-size: 200% auto;
+  color: rgb(226, 212, 212);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  animation: shine 3s linear infinite;
+  transition: background-color 0.3s ease;
+  font-weight : bold
+}
+
+.shiny-button:hover {
+  background-position: right center;
+}
+
+@keyframes shine {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+.password-wrapper {
+  position: relative;
+  width: 100%;
+
+  input {
+    width: 100%;
+    padding-right: 2.5rem;
+    box-sizing: border-box;
+  }
+
+  .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2rem;
+    user-select: none;
+  }
+}
+
+.options-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.5rem 0 1.5rem;
+
+  .remember-me {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+
+    input[type="checkbox"] {
+      margin-right: 0.4rem;
+    }
+  }
+
+  .forgot-password {
+    font-size: 0.9rem;
+    color: #007bff;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
