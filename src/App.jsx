@@ -15,6 +15,10 @@ import Revenue from "./pages/Revenue";
 import TransactionHistory from "./pages/TransactionHistory";
 import LoginPage from "./pages/LoginPage";
 import ProductEdit from "./pages/ProductEdit";
+import ExportReceiptDetail from './pages/ExportReceiptDetail';
+import CreateExportReceipt from './pages/CreateExportReceipt';
+import ImportReceiptDetail from "./pages/ImportReceiptDetail";
+import CreateImportReceipt from "./pages/CreateImportReceipt"
 
 import "./styles/App.scss";
 
@@ -40,7 +44,11 @@ function App() {
             <Route path="/products/category" element={<ProductCategory />} />
             <Route path="/products/brand" element={<ProductBrand />} />
             <Route path="/import" element={<ImportWarehouse />} />
+            <Route path="/import-receipts/:id" element={<ImportReceiptDetail />} />
+            <Route path="/import-receipts/new" element={<CreateImportReceipt />} />
             <Route path="/export" element={<ExportWarehouse />} />
+            <Route path="/export-receipts/:id" element={<ExportReceiptDetail />} />
+            <Route path="/export-receipts/new" element={<CreateExportReceipt />} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/staff" element={<StaffList />} />
             <Route path="/staff/add" element={<StaffAdd />} />
