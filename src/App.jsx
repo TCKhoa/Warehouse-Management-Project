@@ -1,3 +1,4 @@
+import { useState } from "react"; 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import ProductList from "./pages/ProductList";
@@ -12,10 +13,21 @@ import StaffAdd from "./pages/StaffAdd";
 import HomePage from "./pages/HomePage";
 import Revenue from "./pages/Revenue";
 import TransactionHistory from "./pages/TransactionHistory";
+import LoginPage from "./pages/LoginPage";
+import ProductEdit from "./pages/ProductEdit";
 
 import "./styles/App.scss";
 
 function App() {
+   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+   const handleLogin = () => {
+    setIsAuthenticated(true);
+   };
+
+   if (!isAuthenticated){
+    return <LoginPage onLogin={handleLogin}/>;
+   }
   return (
     <BrowserRouter>
       <div className="app-layout">
@@ -34,6 +46,7 @@ function App() {
             <Route path="/staff/add" element={<StaffAdd />} />
             <Route path="/revenue" element={<Revenue />} />
             <Route path="/statistics" element={<TransactionHistory />} />
+            <Route path="/products/:id/edit" element={<ProductEdit/>}/>
 
           </Routes>
         </div>
