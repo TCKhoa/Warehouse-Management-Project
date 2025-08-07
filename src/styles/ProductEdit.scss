@@ -1,0 +1,87 @@
+.product-edit-page {
+  background-color: #f4f6f8;
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 1rem auto;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-family: "Segoe UI", sans-serif;
+
+  h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    color: #1c2938;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    &.full-width {
+      flex-direction: column;
+    }
+  }
+
+  .field {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    input,
+    select {
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 0.95rem;
+      background-color: #fff;
+    }
+
+    input[type="file"] {
+      padding: 0.3rem 0.1rem;
+    }
+
+    img {
+      margin: 0.5rem 0;
+      max-height: 120px;
+      max-width: 100%;
+      object-fit: contain;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  }
+
+  button {
+    padding: 0.75rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    align-self: flex-start;
+    width: fit-content;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+
+  
+  @media (max-width: 768px) {
+    .row {
+      flex-direction: column;
+    }
+  }
+}

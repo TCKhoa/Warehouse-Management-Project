@@ -14,6 +14,7 @@ import HomePage from "./pages/HomePage";
 import Revenue from "./pages/Revenue";
 import TransactionHistory from "./pages/TransactionHistory";
 import LoginPage from "./pages/LoginPage";
+import ProductEdit from "./pages/ProductEdit";
 
 import "./styles/App.scss";
 
@@ -45,6 +46,7 @@ function App() {
             <Route path="/staff/add" element={<StaffAdd />} />
             <Route path="/revenue" element={<Revenue />} />
             <Route path="/statistics" element={<TransactionHistory />} />
+            <Route path="/products/:id/edit" element={<ProductEdit/>}/>
 
           </Routes>
         </div>
