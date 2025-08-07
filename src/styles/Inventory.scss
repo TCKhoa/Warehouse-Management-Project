@@ -1,0 +1,136 @@
+.inventory-page {
+  padding: 24px;
+  background-color: #f9fafb;
+  min-height: 85vh;
+  font-family: 'Segoe UI', sans-serif;
+  color: #111827;
+
+  h2 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+  }
+
+  p {
+    font-size: 16px;
+    color: #6b7280;
+    margin-bottom: 20px;
+  }
+
+  .inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+
+    .right {
+      button {
+        padding: 10px 16px;
+        background-color: #3b82f6;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #2563eb;
+        }
+      }
+    }
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+
+    .search-box,
+    .category-select {
+      padding: 10px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background-color: #ffffff;
+      font-size: 14px;
+      color: #111827;
+      min-width: 220px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+      &:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+
+    thead {
+      background-color: #e5e7eb;
+
+      th {
+        text-align: center;
+        padding: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+        border-bottom: 1px solid #d1d5db;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+          background-color: #dbeafe;
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        &:nth-child(even) {
+          background-color: #f9fafb;
+        }
+
+        &:hover {
+          background-color: #f1f5f9;
+        }
+
+        td {
+          text-align: center;
+          padding: 12px;
+          font-size: 14px;
+          color: #000000;
+          border-bottom: 1px solid #e5e7eb;
+        }
+      }
+    }
+  }
+
+  // Responsive
+  @media (max-width: 768px) {
+    .filters {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    table {
+      font-size: 13px;
+
+      th,
+      td {
+        padding: 10px;
+      }
+    }
+  }
+}

@@ -1,0 +1,90 @@
+.receipt-detail-page {
+  padding: 20px;
+  background-color: #f2f2f2;
+  min-height: 80vh;
+  color: #000000;
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #000000;
+  }
+
+  .logo {
+    display: block;
+    margin: 0 auto 20px auto;
+    width: 120px;
+    height: auto;
+  }
+
+  .info {
+    margin-bottom: 20px;
+    color: #000000;
+
+    p {
+      margin: 4px 0;
+      font-size: 16px;
+      color: #000000;
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    color: #000000;
+
+    th,
+    td {
+      border: 1px solid #000000;
+      padding: 8px;
+      text-align: center;
+      font-size: 14px;
+      color: #000000;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      color: #000000;
+    }
+  }
+
+  .footer {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    color: #000000;
+
+    div {
+      text-align: center;
+      width: 30%;
+
+      p {
+        margin: 6px 0;
+      }
+    }
+  }
+}
+
+.print-area {
+  position: relative;
+  min-height: 100vh;
+}
+
+.print-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #1d4ed8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 1000;
+
+  &:hover {
+    background-color: #2563eb;
+  }
+}

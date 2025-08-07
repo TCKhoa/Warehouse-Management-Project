@@ -1,0 +1,246 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "admin",
+      "email": "admin@example.com",
+      "password": "hashed_password",
+      "role": "admin",
+      "created_at": "2025-08-05T08:00:00Z",
+      "updated_at": "2025-08-05T08:00:00Z"
+    },
+    {
+      "id": "2",
+      "username": "staff1",
+      "email": "staff1@example.com",
+      "password": "hashed_password",
+      "role": "staff",
+      "created_at": "2025-08-05T08:00:00Z",
+      "updated_at": "2025-08-05T08:00:00Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "1",
+      "name": "Đồ uống",
+      "slug": "do-uong"
+    },
+    {
+      "id": "2",
+      "name": "Đồ hộp",
+      "slug": "do-hop"
+    }
+  ],
+  "brands": [
+    {
+      "id": "1",
+      "name": "Coca-Cola",
+      "slug": "coca-cola"
+    },
+    {
+      "id": "2",
+      "name": "Pepsi",
+      "slug": "pepsi"
+    }
+  ],
+  "locations": [
+    {
+      "id": "1",
+      "zone": "F",
+      "shelf": "F2",
+      "description": "Kệ phía trước cửa"
+    }
+  ],
+  "products": [
+    {
+      "id": "1",
+      "name": "Coca-Cola 500ml",
+      "slug": "coca-cola-500ml",
+      "product_code": "COC500",
+      "category_id": 1,
+      "brand_id": 1,
+      "unit_name": "chai",
+      "location_id": 1,
+      "price": 10000,
+      "quantity": 100,
+      "image_url": "https://example.com/images/cocacola.jpg",
+      "deleted_at": null,
+      "created_at": "2025-08-05T08:00:00Z",
+      "updated_at": "2025-08-05T08:00:00Z"
+    }
+  ],
+  "import_receipts": [
+    {
+      "id": "1",
+      "import_code": "PNK001",
+      "created_by": "admin",
+      "created_at": "2025-08-06T10:00:00Z",
+      "note": "Nhập hàng đợt 1",
+      "details": [
+        {
+          "product_code": "SP001",
+          "product_name": "Chuột Logitech",
+          "category_name": "Thiết bị ngoại vi",
+          "brand_name": "Logitech",
+          "unit_name": "Cái",
+          "quantity": 5
+        }
+      ]
+    },
+    {
+      "id": "621d",
+      "import_code": "PNK-1754507440941",
+      "created_by": "dfsd",
+      "created_at": "2025-08-06",
+      "note": "sdfsd",
+      "details": [
+        {
+          "product_id": "1",
+          "quantity": 1,
+          "import_price": 10000
+        }
+      ]
+    }
+  ],
+  "export_receipts": [
+    {
+      "id": "1",
+      "export_code": "PXK20250805001",
+      "created_at": "2025-08-05T09:00:00Z",
+      "created_by": "admin",
+      "note": "Xuất hàng đơn số 123",
+      "details": [
+        {
+          "product_id": 1,
+          "product_name": "Coca-Cola 500ml",
+          "product_code": "COC500",
+          "category_name": "Đồ uống",
+          "brand_name": "Coca-Cola",
+          "unit_name": "chai",
+          "quantity": 10,
+          "export_price": 12000
+        },
+        {
+          "product_id": 2,
+          "product_name": "Pepsi 500ml",
+          "product_code": "PEP500",
+          "category_name": "Đồ uống",
+          "brand_name": "Pepsi",
+          "unit_name": "chai",
+          "quantity": 5,
+          "export_price": 11000
+        }
+      ]
+    },
+    {
+      "id": "948c",
+      "export_code": "PXK-1754449841738",
+      "created_by": "ấdfwsa",
+      "note": "àdas",
+      "details": []
+    },
+    {
+      "id": "40a8",
+      "export_code": "PXK-1754454722761",
+      "created_by": "sadas",
+      "note": "sdsds",
+      "details": [
+        {
+          "product_id": "1",
+          "quantity": 1,
+          "export_price": 10000
+        }
+      ]
+    },
+    {
+      "id": "5cea",
+      "export_code": "PXK-1754454903855",
+      "created_by": "sadas",
+      "note": "sads",
+      "details": [
+        {
+          "product_id": "1",
+          "quantity": 12,
+          "export_price": 10000
+        }
+      ]
+    },
+    {
+      "id": "4a20",
+      "export_code": "PXK-1754455695534",
+      "created_by": "khoa",
+      "note": "dsfsdf",
+      "details": [
+        {
+          "product_id": "1",
+          "quantity": 155,
+          "export_price": 6546
+        }
+      ]
+    },
+    {
+      "id": "3286",
+      "export_code": "PXK-1754497491915",
+      "created_by": "gsđs",
+      "note": "dfsfsd",
+      "details": [
+        {
+          "product_id": "1",
+          "quantity": 34534,
+          "export_price": 43543
+        }
+      ]
+    },
+    {
+      "id": "6f7a",
+      "export_code": "PXK-1754497935914",
+      "created_by": "khoa1",
+      "created_at": "2025-08-06",
+      "note": "sdfds",
+      "details": [
+        {
+          "product_id": "1",
+          "quantity": 1,
+          "export_price": 10000
+        }
+      ]
+    },
+    {
+      "id": "b354",
+      "export_code": "PXK-1754498432503",
+      "created_by": "kkkkk",
+      "created_at": "2025-08-06",
+      "note": "443",
+      "details": [
+        {
+          "product_id": "1",
+          "quantity": 1,
+          "export_price": 10000
+        }
+      ]
+    }
+  ],
+  "revenues": [
+    {
+      "id": "1",
+      "export_receipt_id": 1,
+      "product_id": 1,
+      "product_name": "Coca-Cola 500ml",
+      "quantity": 10,
+      "total_amount": 120000,
+      "created_at": "2025-08-05T09:00:00Z",
+      "updated_at": "2025-08-05T09:00:00Z"
+    }
+  ],
+  "history_logs": [
+    {
+      "id": "1",
+      "action_type": "create",
+      "table_name": "products",
+      "record_id": 1,
+      "description": "Thêm sản phẩm Coca-Cola 500ml",
+      "performed_by": "admin",
+      "created_at": "2025-08-05T08:00:00Z"
+    }
+  ]
+}
