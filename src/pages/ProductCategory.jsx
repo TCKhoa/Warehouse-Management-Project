@@ -1,10 +1,245 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { FaCog } from "react-icons/fa";
+import { IoArrowBackOutline } from "react-icons/io5";
+import "../styles/ProductMeta.scss";
 
 export default function ProductCategory() {
+  const [categories, setCategories] = useState([]);
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [description, setDescription] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editingData, setEditingData] = useState({});
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [confirmDeleteName, setConfirmDeleteName] = useState("");
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [selectedAll, setSelectedAll] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+
+  useEffect(() => {
+    const mockData = [
+      {
+        id: 1,
+        name: "Thiết bị ngoại vi",
+        slug: "thiet-bi-ngoai-vi",
+        description: "Thiết bị ngoại vi cho máy tính",
+      },
+      {
+        id: 2,
+        name: "Chuột",
+        slug: "chuot",
+        description: "Các loại chuột máy tính",
+      },
+      {
+        id: 3,
+        name: "Bàn phím",
+        slug: "ban-phim",
+        description: "Bàn phím cơ và văn phòng",
+      },
+    ];
+    setCategories(mockData);
+  }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (editingId !== null) {
+      setCategories((prev) =>
+        prev.map((cat) =>
+          cat.id === editingId ? { ...cat, ...editingData } : cat
+        )
+      );
+      setEditingId(null);
+      setEditingData({});
+    } else {
+      const newCategory = {
+        id: Date.now(),
+        name,
+        slug,
+        description,
+      };
+      setCategories((prev) => [...prev, newCategory]);
+      setName("");
+      setSlug("");
+      setDescription("");
+    }
+  };
+
+  const handleEditClick = (category) => {
+    setEditingId(category.id);
+    setEditingData({ ...category });
+    setActiveDropdown(null);
+  };
+
+  const handleDeleteClick = (category) => {
+    setConfirmDeleteId(category.id);
+    setConfirmDeleteName(category.name);
+    setActiveDropdown(null);
+  };
+
+  const confirmDelete = () => {
+    setCategories((prev) => prev.filter((cat) => cat.id !== confirmDeleteId));
+    if (editingId === confirmDeleteId) {
+      setEditingId(null);
+      setEditingData({});
+    }
+    setConfirmDeleteId(null);
+    setConfirmDeleteName("");
+  };
+
+  const handleCheckAll = () => {
+    if (selectedAll) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(categories.map((cat) => cat.id));
+    }
+    setSelectedAll(!selectedAll);
+  };
+
+  const handleCheckItem = (id) => {
+    setSelectedItems((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBackToAdd = () => {
+    setEditingId(null);
+    setEditingData({});
+  };
+
   return (
-    <div>
+    <div className="category-page">
       <h2>📂 Danh mục sản phẩm</h2>
-      <p>Quản lý các danh mục sản phẩm.</p>
+    
+
+      <div className="category-container">
+        {/* Form Thêm hoặc Sửa */}
+        <form onSubmit={handleSubmit} className="category-form">
+          <div className="back-edit-placeholder">
+            {editingId ? (
+              <div className="back-edit" onClick={handleBackToAdd}>
+                <IoArrowBackOutline />
+                <span>Quay lại thêm danh mục</span>
+              </div>
+            ):(
+              <div className="back-edit fake"></div>
+            )}
+          </div>
+
+          <h3>{editingId ? "✏️ Sửa danh mục" : "➕ Thêm danh mục mới"}</h3>
+
+          <label>Tên</label>
+          <input
+            type="text"
+            value={editingId ? editingData.name : name}
+            onChange={(e) =>
+              editingId
+                ? setEditingData({ ...editingData, name: e.target.value })
+                : setName(e.target.value)
+            }
+            required
+          />
+
+          <label>Đường dẫn (slug)</label>
+          <input
+            type="text"
+            value={editingId ? editingData.slug : slug}
+            onChange={(e) =>
+              editingId
+                ? setEditingData({ ...editingData, slug: e.target.value })
+                : setSlug(e.target.value)
+            }
+            required
+          />
+
+          <label>Mô tả</label>
+          <textarea
+            value={editingId ? editingData.description : description}
+            onChange={(e) =>
+              editingId
+                ? setEditingData({
+                    ...editingData,
+                    description: e.target.value,
+                  })
+                : setDescription(e.target.value)
+            }
+          ></textarea>
+
+          <button type="submit">
+            {editingId ? "Lưu thay đổi" : "Thêm danh mục"}
+          </button>
+        </form>
+
+        {/* Danh sách danh mục */}
+        <table className="category-table">
+          <thead>
+            <tr>
+              <th>
+                <input
+                  type="checkbox"
+                  checked={selectedAll}
+                  onChange={handleCheckAll}
+                />
+              </th>
+              <th>Tên</th>
+              <th>Mô tả</th>
+              <th>Đường dẫn</th>
+              <th>Chi tiết</th>
+            </tr>
+          </thead>
+          <tbody>
+            {categories.map((cat) => (
+              <tr key={cat.id}>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.includes(cat.id)}
+                    onChange={() => handleCheckItem(cat.id)}
+                  />
+                </td>
+                <td>{cat.name}</td>
+                <td>{cat.description || "—"}</td>
+                <td>{cat.slug}</td>
+                <td className="action-cell">
+                  <div className="dropdown">
+                    <FaCog
+                      className="icon"
+                      onClick={() =>
+                        setActiveDropdown(
+                          activeDropdown === cat.id ? null : cat.id
+                        )
+                      }
+                    />
+                    {activeDropdown === cat.id && (
+                      <div className="dropdown-menu">
+                        <div onClick={() => handleEditClick(cat)}>Sửa</div>
+                        <div onClick={() => handleDeleteClick(cat)}>Xóa</div>
+                      </div>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal xác nhận xóa */}
+      {confirmDeleteId !== null && (
+        <div className="confirm-overlay">
+          <div className="confirm-modal">
+            <p>
+              Bạn có chắc chắn muốn xóa danh mục{" "}
+              <strong>{confirmDeleteName}</strong>?
+            </p>
+            <div className="confirm-buttons">
+              <button onClick={() => setConfirmDeleteId(null)}>Hủy</button>
+              <button onClick={confirmDelete} className="danger">
+                Xác nhận
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

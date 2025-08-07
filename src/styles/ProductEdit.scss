@@ -7,6 +7,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   font-family: "Segoe UI", sans-serif;
+  min-height: 85vh;
 
   h2 {
     font-size: 1.6rem;
@@ -50,15 +51,20 @@
 
     input[type="file"] {
       padding: 0.3rem 0.1rem;
+      width: fit-content;
+      max-width: 97px;
     }
 
     img {
       margin: 0.5rem 0;
+      height: auto;
+      width: auto;
+      max-width: 200px;
       max-height: 120px;
-      max-width: 100%;
       object-fit: contain;
       border: 1px solid #ccc;
       border-radius: 6px;
+      display: inline-block;
     }
   }
 
@@ -78,7 +84,6 @@
     }
   }
 
-  
   @media (max-width: 768px) {
     .row {
       flex-direction: column;

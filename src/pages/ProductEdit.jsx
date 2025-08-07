@@ -20,6 +20,7 @@ export default function ProductEdit() {
   });
 
   useEffect(() => {
+    // Dữ liệu giả lập để hiển thị
     const data = {
       name: "Bàn phím cơ G6",
       product_code: "SP001",
@@ -170,7 +171,7 @@ export default function ProductEdit() {
             <img
               src={formData.image_url}
               alt="product"
-              style={{ maxWidth: "100%", maxHeight: "120px", objectFit: "contain" }}
+              className="preview-image"
             />
           )}
           <input
