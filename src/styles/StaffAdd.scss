@@ -1,0 +1,84 @@
+.staff-add {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin-bottom: 24px;
+    font-size: 22px;
+    color: #333;
+  }
+
+  .staff-form {
+    display: grid;
+    gap: 20px;
+
+    .field {
+      display: flex;
+      flex-direction: column;
+
+      label {
+        font-weight: 600;
+        margin-bottom: 6px;
+        color:#333
+      }
+
+      input,
+      select {
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 16px;
+      }
+
+      .password-wrapper {
+        position: relative;
+
+        input {
+          width: 100%;
+          padding-right: 80px;
+        }
+
+        .toggle-btn {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 14px;
+        }
+      }
+
+      .error {
+        color: red;
+        font-size: 13px;
+        margin-top: 4px;
+      }
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+
+      .primary {
+        background: #007bff;
+        color: white;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+
+        &:hover {
+          background: #005dc1;
+        }
+      }
+    }
+  }
+}

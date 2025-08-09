@@ -123,26 +123,26 @@ export default function Inventory() {
       <table>
         <thead>
           <tr>
-            <th onClick={() => handleSort('code')}>Mã {getSortIcon('code')}</th>
+            <th onClick={() => handleSort('product_code')}>Mã {getSortIcon('product_code')}</th>
             <th onClick={() => handleSort('name')}>Tên sản phẩm {getSortIcon('name')}</th>
             <th onClick={() => handleSort('category_name')}>Danh mục {getSortIcon('category_name')}</th>
             <th onClick={() => handleSort('brand_name')}>Thương hiệu {getSortIcon('brand_name')}</th>
             <th onClick={() => handleSort('unit_name')}>Đơn vị {getSortIcon('unit_name')}</th>
-            <th onClick={() => handleSort('import_price')}>Giá nhập (₫) {getSortIcon('import_price')}</th>
-            <th onClick={() => handleSort('price')}>Giá bán (₫) {getSortIcon('price')}</th>
+            <th onClick={() => handleSort('price')}>Giá nhập (₫) {getSortIcon('import_price')}</th>
+            <th onClick={() => handleSort('import_price')}>Giá bán (₫) {getSortIcon('import_price')}</th>
             <th onClick={() => handleSort('quantity')}>Tồn kho {getSortIcon('quantity')}</th>
           </tr>
         </thead>
         <tbody>
           {filteredData.map((item) => (
             <tr key={item.id}>
-              <td>{item.code}</td>
+              <td>{item.product_code}</td>
               <td>{item.name}</td>
               <td>{item.category_name || "---"}</td>
               <td>{item.brand_name || "---"}</td>
               <td>{item.unit_name || "---"}</td>
-              <td>{item.import_price?.toLocaleString("vi-VN") || 0}</td>
               <td>{item.price?.toLocaleString("vi-VN") || 0}</td>
+              <td>{item.import_price?.toLocaleString("vi-VN") || 0}</td>
               <td>{item.quantity || 0}</td>
             </tr>
           ))}
