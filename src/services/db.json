@@ -2,21 +2,82 @@
   "users": [
     {
       "id": "1",
-      "username": "admin",
+      "staff_code": "STF001",
+      "username": "30",
       "email": "admin@example.com",
+      "phone": "0901000001",
       "password": "hashed_password",
       "role": "admin",
-      "created_at": "2025-08-05T08:00:00Z",
+      "created_at": "2025-08-21T00:00:00Z",
       "updated_at": "2025-08-05T08:00:00Z"
     },
     {
       "id": "2",
+      "staff_code": "STF002",
       "username": "staff1",
       "email": "staff1@example.com",
+      "phone": "0901000002",
       "password": "hashed_password",
       "role": "staff",
-      "created_at": "2025-08-05T08:00:00Z",
-      "updated_at": "2025-08-05T08:00:00Z"
+      "created_at": "2025-08-05T08:10:00Z",
+      "updated_at": "2025-08-05T08:10:00Z"
+    },
+    {
+      "id": "3",
+      "staff_code": "STF003",
+      "username": "staff2",
+      "email": "staff2@example.com",
+      "phone": "0901000003",
+      "password": "hashed_password",
+      "role": "staff",
+      "created_at": "2025-08-05T08:20:00Z",
+      "updated_at": "2025-08-05T08:20:00Z"
+    },
+    {
+      "id": "4",
+      "staff_code": "STF004",
+      "username": "staff3",
+      "email": "staff3@example.com",
+      "phone": "0901000004",
+      "password": "hashed_password",
+      "role": "staff",
+      "created_at": "2025-08-05T08:30:00Z",
+      "updated_at": "2025-08-05T08:30:00Z"
+    },
+    {
+      "id": "5",
+      "staff_code": "STF005",
+      "username": "staff4",
+      "email": "staff4@example.com",
+      "phone": "0901000005",
+      "password": "hashed_password",
+      "role": "staff",
+      "created_at": "2025-08-05T08:40:00Z",
+      "updated_at": "2025-08-05T08:40:00Z"
+    },
+    {
+      "id": "aa53",
+      "staff_code": "STF006",
+      "username": "adminkhoa",
+      "email": "trancongkhoa15@gmail.com",
+      "phone": "admin",
+      "password": "admin",
+      "role": "staff",
+      "birthday": "2008-06-05T00:00:00Z",
+      "created_at": "2025-08-08T00:00:00Z",
+      "updated_at": "2025-08-08T03:53:17.687Z"
+    },
+    {
+      "id": "28b8",
+      "staff_code": "STF007",
+      "username": "admin",
+      "email": "htyennhi.work@gmail.com",
+      "phone": "admin",
+      "password": "admin",
+      "role": "staff",
+      "birthday": "2025-09-06T00:00:00Z",
+      "created_at": "2025-08-08T00:00:00Z",
+      "updated_at": "2025-08-08T04:05:02.296Z"
     }
   ],
   "categories": [
@@ -67,6 +128,150 @@
       "deleted_at": null,
       "created_at": "2025-08-05T08:00:00Z",
       "updated_at": "2025-08-05T08:00:00Z"
+    },
+    {
+      "id": "2",
+      "name": "Pepsi 500ml",
+      "slug": "pepsi-500ml",
+      "product_code": "PEP500",
+      "category_id": 1,
+      "brand_id": 2,
+      "unit_name": "chai",
+      "location_id": 2,
+      "price": 9500,
+      "quantity": 120,
+      "image_url": "https://example.com/images/pepsi.jpg",
+      "deleted_at": null,
+      "created_at": "2025-08-05T08:05:00Z",
+      "updated_at": "2025-08-05T08:05:00Z"
+    },
+    {
+      "id": "3",
+      "name": "Trà Xanh Không Độ",
+      "slug": "tra-xanh-khong-do",
+      "product_code": "TXKD",
+      "category_id": 2,
+      "brand_id": 3,
+      "unit_name": "chai",
+      "location_id": 3,
+      "price": 9000,
+      "quantity": 80,
+      "image_url": "https://example.com/images/traxanh.jpg",
+      "deleted_at": null,
+      "created_at": "2025-08-05T08:10:00Z",
+      "updated_at": "2025-08-05T08:10:00Z"
+    },
+    {
+      "id": "4",
+      "name": "Bánh Oishi Snack",
+      "slug": "bánh-oishi-snack",
+      "product_code": "OISHI001",
+      "category_id": 3,
+      "brand_id": 4,
+      "unit_name": "gói",
+      "location_id": 4,
+      "price": 5000,
+      "quantity": 150,
+      "image_url": "https://example.com/images/oishi.jpg",
+      "deleted_at": null,
+      "created_at": "2025-08-05T08:15:00Z",
+      "updated_at": "2025-08-05T08:15:00Z"
+    },
+    {
+      "id": "5",
+      "name": "Bim Bim Poca Vị Phô Mai",
+      "slug": "bim-bim-poca-vi-pho-mai",
+      "product_code": "POCA001",
+      "category_id": 3,
+      "brand_id": 5,
+      "unit_name": "gói",
+      "location_id": 2,
+      "price": 7000,
+      "quantity": 60,
+      "image_url": "https://example.com/images/poca.jpg",
+      "deleted_at": null,
+      "created_at": "2025-08-05T08:20:00Z",
+      "updated_at": "2025-08-05T08:20:00Z"
+    },
+    {
+      "id": "6",
+      "name": "Sữa Tươi Vinamilk 180ml",
+      "slug": "sua-tuoi-vinamilk-180ml",
+      "product_code": "VINAM180",
+      "category_id": 4,
+      "brand_id": 6,
+      "unit_name": "hộp",
+      "location_id": 1,
+      "price": 6000,
+      "quantity": 200,
+      "image_url": "https://example.com/images/vinamilk.jpg",
+      "deleted_at": null,
+      "created_at": "2025-08-05T08:25:00Z",
+      "updated_at": "2025-08-05T08:25:00Z"
+    },
+    {
+      "id": "7",
+      "name": "Bánh Chocopie Orion",
+      "slug": "banh-chocopie-orion",
+      "product_code": "ORIONCP",
+      "category_id": 3,
+      "brand_id": 7,
+      "unit_name": "hộp",
+      "location_id": 3,
+      "price": 25000,
+      "quantity": 40,
+      "image_url": "https://example.com/images/chocopie.jpg",
+      "deleted_at": null,
+      "created_at": "2025-08-05T08:30:00Z",
+      "updated_at": "2025-08-05T08:30:00Z"
+    },
+    {
+      "id": "8",
+      "name": "Nước suối Lavie 500ml",
+      "slug": "nuoc-suoi-lavie-500ml",
+      "product_code": "LAVIE500",
+      "category_id": 1,
+      "brand_id": 8,
+      "unit_name": "chai",
+      "location_id": 4,
+      "price": 6000,
+      "quantity": 130,
+      "image_url": "https://example.com/images/lavie.jpg",
+      "deleted_at": null,
+      "created_at": "2025-08-05T08:35:00Z",
+      "updated_at": "2025-08-05T08:35:00Z"
+    },
+    {
+      "id": "9",
+      "name": "Sữa đậu nành Fami",
+      "slug": "sua-dau-nanh-fami",
+      "product_code": "FAMI001",
+      "category_id": 4,
+      "brand_id": 9,
+      "unit_name": "hộp",
+      "location_id": 2,
+      "price": 5000,
+      "quantity": 90,
+      "image_url": "https://example.com/images/fami.jpg",
+      "deleted_at": null,
+      "created_at": "2025-08-05T08:40:00Z",
+      "updated_at": "2025-08-05T08:40:00Z"
+    },
+    {
+      "id": "10",
+      "name": "Nước tăng lực Sting Dâu",
+      "slug": "sting-dau",
+      "product_code": "STINGD",
+      "category_id": 1,
+      "brand_id": 10,
+      "unit_name": "chai",
+      "location_id": 3,
+      "price": 9500,
+      "quantity": 110,
+      "image_url": "https://example.com/images/sting.jpg",
+      "deleted_at": null,
+      "created_at": "2025-08-05T08:45:00Z",
+      "updated_at": "2025-08-05T08:45:00Z"
     }
   ],
   "import_receipts": [
@@ -216,6 +421,35 @@
           "product_id": "1",
           "quantity": 1,
           "export_price": 10000
+        }
+      ]
+    },
+    {
+      "id": "4523",
+      "export_code": "PXK-1754579704963",
+      "created_by": "sadsa",
+      "created_at": "2025-08-07",
+      "note": "sadsa",
+      "details": [
+        {
+          "product_id": "7",
+          "quantity": 122,
+          "export_price": 1333
+        },
+        {
+          "product_id": "6",
+          "quantity": 1333,
+          "export_price": 111
+        },
+        {
+          "product_id": "9",
+          "quantity": 1,
+          "export_price": 5000
+        },
+        {
+          "product_id": "5",
+          "quantity": 1,
+          "export_price": 7000
         }
       ]
     }
