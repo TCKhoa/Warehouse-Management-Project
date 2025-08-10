@@ -18,7 +18,8 @@ import ProductEdit from "./pages/ProductEdit";
 import ExportReceiptDetail from './pages/ExportReceiptDetail';
 import CreateExportReceipt from './pages/CreateExportReceipt';
 import ImportReceiptDetail from "./pages/ImportReceiptDetail";
-import CreateImportReceipt from "./pages/CreateImportReceipt"
+import CreateImportReceipt from "./pages/CreateImportReceipt";
+import StaffDetail from './pages/StaffDetail';
 
 import "./styles/App.scss";
 
@@ -52,6 +53,7 @@ function App() {
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/staff" element={<StaffList />} />
             <Route path="/staff/add" element={<StaffAdd />} />
+            <Route path="/staff/:id" element={<StaffDetail />} />
             <Route path="/revenue" element={<Revenue />} />
             <Route path="/statistics" element={<TransactionHistory />} />
             <Route path="/products/:id/edit" element={<ProductEdit/>}/>

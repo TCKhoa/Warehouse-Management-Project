@@ -2,14 +2,35 @@ const BASE_URL = 'http://localhost:3000';
 
 const api = {
   // USERS
-  getUsers: async () => fetch(`${BASE_URL}/users`).then(res => res.json()),
+getUsers: async () => {
+  const res = await fetch(`${BASE_URL}/users`);
+  return res.json();
+},
+
+createUser: async (data) => {
+  const res = await fetch(`${BASE_URL}/users`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return res.json();
+},
+
+updateUser: async (user) => {
+  const res = await fetch(`${BASE_URL}/users/${user.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(user),
+  });
+  return res.json();
+},
+
 
   // CATEGORIES
   getCategories: async () => fetch(`${BASE_URL}/categories`).then(res => res.json()),
 
   // BRANDS
   getBrands: async () => fetch(`${BASE_URL}/brands`).then(res => res.json()),
-
 
   // LOCATIONS
   getLocations: async () => fetch(`${BASE_URL}/locations`).then(res => res.json()),
@@ -42,12 +63,11 @@ const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     }).then(res => res.json()),
-    
-
 
   // EXPORT RECEIPTS
   getExportReceipts: async () => fetch(`${BASE_URL}/export_receipts`).then(res => res.json()),
-  getExportReceiptById: async (id) => fetch(`${BASE_URL}/export_receipts/${id}`).then(res => res.json()),
+  getExportReceiptById: async (id) =>
+    fetch(`${BASE_URL}/export_receipts/${id}`).then(res => res.json()),
   createExportReceipt: async (data) =>
     fetch(`${BASE_URL}/export_receipts`, {
       method: 'POST',

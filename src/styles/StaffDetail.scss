@@ -1,0 +1,100 @@
+.staff-detail {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 32px;
+  border-radius: 12px;
+
+  h2 {
+    font-size: 24px;
+    margin-bottom: 24px;
+     color:#252525;
+
+    .staff-id {
+      color: #252525;
+    }
+  }
+
+  .grid-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      margin-bottom:5px ;
+
+      label {
+        font-size: 16px;
+        color: #525050;
+        margin-bottom:5px ;
+      }
+      input, button, textarea {
+        font-family: inherit;
+        font-size: inherit;
+        line-height: inherit;
+      }
+
+
+    //   .field-value, input {
+    //     font-weight: bold;
+    //     font-size: 16px;
+    //     background: #f9fafb;
+    //     padding: 2px 14px;
+    //     border-radius: 6px;
+    //     border: 1px solid #ccc;
+    //     color:#252525
+    //   }
+
+    //   input:disabled {
+    //     background: #e5e7eb;
+    //      color:#252525
+    //   }
+    }
+  }
+
+  .actions {
+    margin-top: 32px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    
+
+    button {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+
+    .danger {
+      background-color: #dc2626;
+      color: white;
+    }
+
+    .primary {
+      background-color: #2563eb;
+      color: white;
+    }
+  }
+}
+.field-value {
+  font-weight: bold;
+  font-size: 16px;
+  background: #f9fafb;
+  padding: 2px 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  color: #252525;
+  height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+input.field-value:disabled {
+  background: #e5e7eb;
+}
+
