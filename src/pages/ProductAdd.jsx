@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/ProductEdit.scss"; // dùng lại style
+import "../styles/ProductEdit.scss";
 
 export default function ProductAdd() {
   const navigate = useNavigate();
+  const [showCustomUnit, setShowCustomUnit] = useState(false);
+  const [customUnit, setCustomUnit] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -27,6 +29,9 @@ export default function ProductAdd() {
         image_url: URL.createObjectURL(files[0]),
       }));
     } else {
+      if (name === "unit" && value === "Khác") {
+        setShowCustomUnit(true);
+      }
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
@@ -34,7 +39,15 @@ export default function ProductAdd() {
   const handleSubmit = (e) => {
     e.preventDefault();
     alert("Đã thêm sản phẩm mới!");
-    navigate("/products"); // hoặc giữ nguyên nếu muốn reset form
+    navigate("/products");
+  };
+
+  const handleSaveCustomUnit = () => {
+    if (customUnit.trim()) {
+      setFormData((prev) => ({ ...prev, unit: customUnit }));
+      setShowCustomUnit(false);
+      setCustomUnit("");
+    }
   };
 
   return (
@@ -107,6 +120,7 @@ export default function ProductAdd() {
             <option value="">--Chọn đơn vị--</option>
             <option value="Chiếc">Chiếc</option>
             <option value="Bộ">Bộ</option>
+            <option value="Khác">Khác...</option>
           </select>
         </div>
 
@@ -176,6 +190,24 @@ export default function ProductAdd() {
           Thêm sản phẩm
         </button>
       </div>
+
+      {showCustomUnit && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Nhập đơn vị khác</h3>
+            <input
+              type="text"
+              value={customUnit}
+              onChange={(e) => setCustomUnit(e.target.value)}
+              placeholder="Nhập đơn vị..."
+            />
+            <div className="modal-actions">
+              <button onClick={handleSaveCustomUnit}>OK</button>
+              <button onClick={() => setShowCustomUnit(false)}>Hủy</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

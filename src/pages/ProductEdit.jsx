@@ -19,6 +19,9 @@ export default function ProductEdit() {
     imageFile: null,
   });
 
+  const [showCustomUnit, setShowCustomUnit] = useState(false);
+  const [customUnitValue, setCustomUnitValue] = useState("");
+
   useEffect(() => {
     // Dữ liệu giả lập để hiển thị
     const data = {
@@ -43,9 +46,19 @@ export default function ProductEdit() {
         imageFile: files[0],
         image_url: URL.createObjectURL(files[0]),
       }));
+    } else if (name === "unit" && value === "Khác") {
+      setShowCustomUnit(true);
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
+  };
+
+  const handleCustomUnitSave = () => {
+    if (customUnitValue.trim() !== "") {
+      setFormData((prev) => ({ ...prev, unit: customUnitValue.trim() }));
+    }
+    setShowCustomUnit(false);
+    setCustomUnitValue("");
   };
 
   const handleSubmit = (e) => {
@@ -124,6 +137,7 @@ export default function ProductEdit() {
             <option value="">--Chọn đơn vị--</option>
             <option value="Chiếc">Chiếc</option>
             <option value="Bộ">Bộ</option>
+            <option value="Khác">Khác</option>
           </select>
         </div>
 
@@ -188,6 +202,25 @@ export default function ProductEdit() {
           Lưu thay đổi
         </button>
       </div>
+
+      {/* Modal nhập đơn vị khác */}
+      {showCustomUnit && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Nhập đơn vị khác</h3>
+            <input
+              type="text"
+              value={customUnitValue}
+              onChange={(e) => setCustomUnitValue(e.target.value)}
+              placeholder="Nhập đơn vị..."
+            />
+            <div className="modal-actions">
+              <button onClick={handleCustomUnitSave}>OK</button>
+              <button onClick={() => setShowCustomUnit(false)}>Hủy</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
