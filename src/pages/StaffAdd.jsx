@@ -10,9 +10,10 @@ export default function StaffAdd() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [backendError, setBackendError] = useState(""); // 🌟 lỗi backend
 
   const [formData, setFormData] = useState({
-    staff_code: "",
+    staffCode: "",
     username: "",
     email: "",
     phone: "",
@@ -26,7 +27,7 @@ export default function StaffAdd() {
     const fetchUsers = async () => {
       try {
         const users = await api.getUsers();
-        const codes = users.map((u) => u.staff_code);
+        const codes = users.map((u) => u.staffCode);
         setExistingCodes(codes);
 
         let index = 1;
@@ -36,7 +37,7 @@ export default function StaffAdd() {
           if (!codes.includes(newCode)) break;
           index++;
         }
-        setFormData((prev) => ({ ...prev, staff_code: newCode }));
+        setFormData((prev) => ({ ...prev, staffCode: newCode }));
       } catch (err) {
         console.error("Lỗi khi tải danh sách nhân viên:", err);
       }
@@ -56,28 +57,42 @@ export default function StaffAdd() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setBackendError(""); // reset lỗi backend
+
+    // Kiểm tra mật khẩu
     if (formData.password !== confirmPassword) {
       setPasswordError("❌ Mật khẩu nhập lại không khớp.");
       return;
     }
 
     try {
+      // Format date: "YYYY-MM-DDTHH:mm:ss"
+      const formatDateTime = (dateStr) => {
+        if (!dateStr) return null;
+        return dateStr.includes("T") ? dateStr : dateStr + "T00:00:00";
+      };
+
       const newUser = {
         ...formData,
-        created_at: formData.created_at + "T00:00:00Z",
-        birthday: formData.birthday ? formData.birthday + "T00:00:00Z" : null,
-        updated_at: new Date().toISOString(),
+        created_at: formatDateTime(formData.created_at),
+        birthday: formatDateTime(formData.birthday),
+        updated_at: new Date().toISOString().slice(0, 19), // bỏ Z
       };
+
+      console.log("Dữ liệu gửi lên backend:", newUser);
 
       const createdUser = await api.createUser(newUser);
 
       alert("✅ Thêm nhân viên thành công!");
-      
-      // Điều hướng đến trang chi tiết nhân viên sau khi tạo xong
       navigate(`/staff/${createdUser.id}`);
     } catch (err) {
-      console.error("Lỗi khi thêm nhân viên:", err);
-      alert("❌ Lỗi khi thêm nhân viên");
+      console.error(
+        "Lỗi khi thêm nhân viên:",
+        err.response?.status,
+        err.response?.data || err.message
+      );
+      // 🌟 hiển thị lỗi backend ra UI
+      setBackendError(err.response?.data || "Lỗi không xác định");
     }
   };
 
@@ -87,7 +102,7 @@ export default function StaffAdd() {
       <form className="staff-form" onSubmit={handleSubmit}>
         <div className="field">
           <label>Mã nhân viên</label>
-          <input name="staff_code" value={formData.staff_code} disabled />
+          <input name="staffCode" value={formData.staffCode} disabled />
         </div>
 
         <div className="field">
@@ -192,6 +207,9 @@ export default function StaffAdd() {
             onChange={handleChange}
           />
         </div>
+
+        {/* 🌟 Hiển thị lỗi từ backend */}
+        {backendError && <p className="error">Lỗi: {backendError} !!</p>}
 
         <div className="actions">
           <button type="submit" className="primary">

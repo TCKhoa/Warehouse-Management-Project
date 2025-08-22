@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaCog } from "react-icons/fa";
 import { IoArrowBackOutline } from "react-icons/io5";
+import api from "../services/api"; // ✅ import API
 import "../styles/ProductMeta.scss";
 
 export default function ProductCategory() {
@@ -16,76 +17,77 @@ export default function ProductCategory() {
   const [selectedAll, setSelectedAll] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
 
+  // ---------------- Lấy danh sách category từ API ----------------
   useEffect(() => {
-    const mockData = [
-      {
-        id: 1,
-        name: "Thiết bị ngoại vi",
-        slug: "thiet-bi-ngoai-vi",
-        description: "Thiết bị ngoại vi cho máy tính",
-      },
-      {
-        id: 2,
-        name: "Chuột",
-        slug: "chuot",
-        description: "Các loại chuột máy tính",
-      },
-      {
-        id: 3,
-        name: "Bàn phím",
-        slug: "ban-phim",
-        description: "Bàn phím cơ và văn phòng",
-      },
-    ];
-    setCategories(mockData);
+    fetchCategories();
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (editingId !== null) {
-      setCategories((prev) =>
-        prev.map((cat) =>
-          cat.id === editingId ? { ...cat, ...editingData } : cat
-        )
-      );
-      setEditingId(null);
-      setEditingData({});
-    } else {
-      const newCategory = {
-        id: Date.now(),
-        name,
-        slug,
-        description,
-      };
-      setCategories((prev) => [...prev, newCategory]);
-      setName("");
-      setSlug("");
-      setDescription("");
+  const fetchCategories = async () => {
+    try {
+      const data = await api.getCategories();
+      setCategories(data);
+    } catch (err) {
+      console.error("Lỗi khi tải categories:", err);
+      alert("❌ Không thể tải danh sách danh mục!");
     }
   };
 
+  // ---------------- Thêm / Cập nhật ----------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingId !== null) {
+        await api.updateCategory(editingId, editingData);
+        await fetchCategories();
+        setEditingId(null);
+        setEditingData({});
+        alert("✅ Cập nhật danh mục thành công!");
+      } else {
+        await api.createCategory({ name, slug, description });
+        await fetchCategories();
+        setName("");
+        setSlug("");
+        setDescription("");
+        alert("✅ Thêm danh mục thành công!");
+      }
+    } catch (err) {
+      console.error("Lỗi khi lưu category:", err);
+      alert("❌ Có lỗi xảy ra khi lưu danh mục!");
+    }
+  };
+
+  // ---------------- Chỉnh sửa ----------------
   const handleEditClick = (category) => {
     setEditingId(category.id);
     setEditingData({ ...category });
     setActiveDropdown(null);
   };
 
+  // ---------------- Xóa ----------------
   const handleDeleteClick = (category) => {
     setConfirmDeleteId(category.id);
     setConfirmDeleteName(category.name);
     setActiveDropdown(null);
   };
 
-  const confirmDelete = () => {
-    setCategories((prev) => prev.filter((cat) => cat.id !== confirmDeleteId));
-    if (editingId === confirmDeleteId) {
-      setEditingId(null);
-      setEditingData({});
+  const confirmDelete = async () => {
+    try {
+      await api.deleteCategory(confirmDeleteId);
+      await fetchCategories();
+      if (editingId === confirmDeleteId) {
+        setEditingId(null);
+        setEditingData({});
+      }
+      alert(`🗑️ Đã xóa danh mục "${confirmDeleteName}" thành công!`);
+    } catch (err) {
+      console.error("Lỗi khi xóa category:", err);
+      alert("❌ Không thể xóa danh mục!");
     }
     setConfirmDeleteId(null);
     setConfirmDeleteName("");
   };
 
+  // ---------------- Checkbox ----------------
   const handleCheckAll = () => {
     if (selectedAll) {
       setSelectedItems([]);
@@ -109,7 +111,6 @@ export default function ProductCategory() {
   return (
     <div className="category-page">
       <h2>📂 Danh mục sản phẩm</h2>
-    
 
       <div className="category-container">
         {/* Form Thêm hoặc Sửa */}
@@ -120,7 +121,7 @@ export default function ProductCategory() {
                 <IoArrowBackOutline />
                 <span>Quay lại thêm danh mục</span>
               </div>
-            ):(
+            ) : (
               <div className="back-edit fake"></div>
             )}
           </div>

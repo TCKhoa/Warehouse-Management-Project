@@ -1,6 +1,8 @@
+// src/pages/ProductBrand.jsx
 import React, { useEffect, useState } from "react";
 import { FaCog } from "react-icons/fa";
 import { IoArrowBackOutline } from "react-icons/io5";
+import api from "../services/api";
 import "../styles/ProductMeta.scss";
 
 export default function ProductBrand() {
@@ -16,51 +18,39 @@ export default function ProductBrand() {
   const [selectedAll, setSelectedAll] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
 
+  // Lấy danh sách thương hiệu từ backend
+  const fetchBrands = async () => {
+    try {
+      const data = await api.getBrands();
+      setBrands(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách thương hiệu:", error);
+    }
+  };
+
   useEffect(() => {
-    const mockData = [
-      {
-        id: 1,
-        name: "Logitech",
-        slug: "logitech",
-        description: "Thương hiệu thiết bị ngoại vi hàng đầu",
-      },
-      {
-        id: 2,
-        name: "Razer",
-        slug: "razer",
-        description: "Thương hiệu gaming nổi tiếng",
-      },
-      {
-        id: 3,
-        name: "Apple",
-        slug: "apple",
-        description: "Thiết bị cao cấp từ Apple",
-      },
-    ];
-    setBrands(mockData);
+    fetchBrands();
   }, []);
 
-  const handleSubmit = (e) => {
+  // Thêm / sửa thương hiệu
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId !== null) {
-      setBrands((prev) =>
-        prev.map((brand) =>
-          brand.id === editingId ? { ...brand, ...editingData } : brand
-        )
-      );
-      setEditingId(null);
-      setEditingData({});
-    } else {
-      const newBrand = {
-        id: Date.now(),
-        name,
-        slug,
-        description,
-      };
-      setBrands((prev) => [...prev, newBrand]);
-      setName("");
-      setSlug("");
-      setDescription("");
+    try {
+      if (editingId !== null) {
+        // Sửa
+        await api.updateBrand(editingId, editingData);
+        setEditingId(null);
+        setEditingData({});
+      } else {
+        // Thêm mới
+        await api.createBrand({ name, slug, description });
+        setName("");
+        setSlug("");
+        setDescription("");
+      }
+      fetchBrands();
+    } catch (error) {
+      console.error("Lỗi khi lưu thương hiệu:", error);
     }
   };
 
@@ -76,14 +66,19 @@ export default function ProductBrand() {
     setActiveDropdown(null);
   };
 
-  const confirmDelete = () => {
-    setBrands((prev) => prev.filter((brand) => brand.id !== confirmDeleteId));
-    if (editingId === confirmDeleteId) {
-      setEditingId(null);
-      setEditingData({});
+  const confirmDelete = async () => {
+    try {
+      await api.deleteBrand(confirmDeleteId);
+      if (editingId === confirmDeleteId) {
+        setEditingId(null);
+        setEditingData({});
+      }
+      setConfirmDeleteId(null);
+      setConfirmDeleteName("");
+      fetchBrands();
+    } catch (error) {
+      console.error("Lỗi khi xóa thương hiệu:", error);
     }
-    setConfirmDeleteId(null);
-    setConfirmDeleteName("");
   };
 
   const handleCheckAll = () => {
@@ -155,10 +150,7 @@ export default function ProductBrand() {
             value={editingId ? editingData.description : description}
             onChange={(e) =>
               editingId
-                ? setEditingData({
-                    ...editingData,
-                    description: e.target.value,
-                  })
+                ? setEditingData({ ...editingData, description: e.target.value })
                 : setDescription(e.target.value)
             }
           ></textarea>

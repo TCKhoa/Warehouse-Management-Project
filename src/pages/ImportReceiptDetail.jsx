@@ -89,9 +89,11 @@ const ImportReceiptDetail = () => {
           <h2>PHIẾU NHẬP KHO</h2>
 
           <div className="info">
-            <p><strong>Mã phiếu:</strong> {receipt.import_code}</p>
-            <p><strong>Ngày tạo:</strong> {new Date(receipt.created_at).toLocaleDateString('vi-VN')}</p>
-            <p><strong>Người thực hiện:</strong> {receipt.created_by}</p>
+            <p><strong>Mã phiếu:</strong> {receipt.importCode}</p>
+           <p><strong>Ngày tạo:</strong> {new Date(receipt.createdAt).toLocaleDateString('vi-VN')}</p>
+            <p><strong>Người thực hiện:</strong> {receipt.createdBy || "N/A"}</p>
+
+
             <p><strong>Ghi chú:</strong> {receipt.note || 'Không có'}</p>
           </div>
 
@@ -108,14 +110,14 @@ const ImportReceiptDetail = () => {
               </tr>
             </thead>
             <tbody>
-              {receipt.details.map((item, index) => (
+              {(receipt.details || []).map((item, index) => (
                 <tr key={index}>
                   <td>{index + 1}</td>
-                  <td>{item.product_code}</td>
-                  <td>{item.product_name}</td>
-                  <td>{item.category_name}</td>
-                  <td>{item.brand_name}</td>
-                  <td>{item.unit_name}</td>
+                  <td>{item.productCode}</td>
+                  <td>{item.productName}</td>
+                  <td>{item.categoryName}</td>
+                  <td>{item.brandName}</td>
+                  <td>{item.unitName}</td>
                   <td>{item.quantity}</td>
                 </tr>
               ))}

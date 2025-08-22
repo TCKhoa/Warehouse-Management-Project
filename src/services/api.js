@@ -1,97 +1,265 @@
-const BASE_URL = 'http://localhost:3000';
+// src/services/api.js
+import axios from "axios";
 
+// ----------------- BASE CONFIG -----------------
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+const apiClient = axios.create({
+  baseURL: `${API_BASE_URL}/api`,
+  timeout: 10000,
+});
+
+// ----------------- REQUEST INTERCEPTOR -----------------
+apiClient.interceptors.request.use(
+  (config) => {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// ----------------- RESPONSE INTERCEPTOR -----------------
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
+// ----------------- API METHODS -----------------
 const api = {
-  // USERS
-getUsers: async () => {
-  const res = await fetch(`${BASE_URL}/users`);
-  return res.json();
-},
+  // ---------- AUTH ----------
+  login: async (data) => {
+    const response = await apiClient.post("/login", data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
 
-createUser: async (data) => {
-  const res = await fetch(`${BASE_URL}/users`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  return res.json();
-},
+  // ---------- USERS ----------
+  createUser: async (data) => {
+    const res = await apiClient.post("/users", data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return res.data;
+  },
+  getUsers: async () => {
+    const response = await apiClient.get("/users");
+    return response.data;
+  },
+  getUserById: async (id) => {
+    const response = await apiClient.get(`/users/${id}`);
+    return response.data;
+  },
+  updateUser: async (id, data) => {
+    const response = await apiClient.put(`/users/${id}`, data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  deleteUser: async (id) => {
+    const response = await apiClient.delete(`/users/${id}`);
+    return response.data;
+  },
 
-updateUser: async (user) => {
-  const res = await fetch(`${BASE_URL}/users/${user.id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(user),
-  });
-  return res.json();
-},
+  // ---------- PRODUCTS ----------
+  getProducts: async () => {
+    const response = await apiClient.get("/products");
+    return response.data.map((p) => ({
+      ...p,
+      imageUrl: p.imageUrl
+        ? p.imageUrl.startsWith("http")
+          ? p.imageUrl
+          : `http://localhost:8080/${p.imageUrl.replace(/^\//, "")}`
+        : null,
+    }));
+  },
+  getProductById: async (id) => {
+    const response = await apiClient.get(`/products/${id}`);
+    return response.data;
+  },
+  createProduct: async (data) => {
+    const formData = new FormData();
+    const productData = { ...data };
+    if (productData.imageFile) delete productData.imageFile;
+    if (productData.importPrice !== undefined)
+      productData.importPrice = parseFloat(productData.importPrice);
+    if (productData.stock !== undefined)
+      productData.stock = parseInt(productData.stock);
+    formData.append(
+      "product",
+      new Blob([JSON.stringify(productData)], { type: "application/json" })
+    );
+    if (data.imageFile) {
+      formData.append("imageFile", data.imageFile);
+    }
+    const response = await apiClient.post("/products", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  },
+  updateProduct: async (id, data) => {
+    const formData = new FormData();
+    const productData = { ...data };
+    if (productData.imageFile) delete productData.imageFile;
+    if (productData.importPrice !== undefined)
+      productData.importPrice = parseFloat(productData.importPrice);
+    if (productData.stock !== undefined)
+      productData.stock = parseInt(productData.stock);
+    formData.append(
+      "product",
+      new Blob([JSON.stringify(productData)], { type: "application/json" })
+    );
+    if (data.imageFile) {
+      formData.append("imageFile", data.imageFile);
+    }
+    const response = await apiClient.put(`/products/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  },
+  deleteProduct: async (id) => {
+    const response = await apiClient.delete(`/products/${id}`);
+    return response.data;
+  },
+
+  // ---------- CATEGORIES ----------
+  getCategories: async () => {
+    const response = await apiClient.get("/categories");
+    return response.data;
+  },
+  createCategory: async (data) => {
+    const response = await apiClient.post("/categories", data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  updateCategory: async (id, data) => {
+    const response = await apiClient.put(`/categories/${id}`, data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  deleteCategory: async (id) => {
+    const response = await apiClient.delete(`/categories/${id}`);
+    return response.data;
+  },
+
+  // ---------- BRANDS ----------
+  getBrands: async () => {
+    const response = await apiClient.get("/brands");
+    return response.data;
+  },
+  createBrand: async (data) => {
+    const response = await apiClient.post("/brands", data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  updateBrand: async (id, data) => {
+    const response = await apiClient.put(`/brands/${id}`, data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  deleteBrand: async (id) => {
+    const response = await apiClient.delete(`/brands/${id}`);
+    return response.data;
+  },
+
+  // ---------- UNITS ----------
+  getUnits: async () => {
+    const response = await apiClient.get("/units");
+    return response.data;
+  },
+  createUnit: async (data) => {
+    const response = await apiClient.post("/units", data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  updateUnit: async (id, data) => {
+    const response = await apiClient.put(`/units/${id}`, data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  deleteUnit: async (id) => {
+    const response = await apiClient.delete(`/units/${id}`);
+    return response.data;
+  },
+
+  // ---------- LOCATIONS ----------
+  getLocations: async () => {
+    const response = await apiClient.get("/locations");
+    return response.data;
+  },
+  createLocation: async (data) => {
+    const response = await apiClient.post("/locations", data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  updateLocation: async (id, data) => {
+    const response = await apiClient.put(`/locations/${id}`, data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  deleteLocation: async (id) => {
+    const response = await apiClient.delete(`/locations/${id}`);
+    return response.data;
+  },
+
+  // ---------- IMPORT RECEIPTS ----------
+   // ---------- IMPORT RECEIPTS ----------
+  getImportReceipts: async () => {
+    const response = await apiClient.get("/import-receipts");
+    return response.data;
+  },
+  getImportReceiptById: async (id) => {
+    const response = await apiClient.get(`/import-receipts/${id}`);
+    return response.data;
+  },
+  createImportReceipt: async (data) => {
+    const response = await apiClient.post("/import-receipts", data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  updateImportReceipt: async (id, data) => {
+    const response = await apiClient.put(`/import-receipts/${id}`, data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  deleteImportReceipt: async (id) => {
+    const response = await apiClient.delete(`/import-receipts/${id}`);
+    return response.data;
+  },
 
 
-  // CATEGORIES
-  getCategories: async () => fetch(`${BASE_URL}/categories`).then(res => res.json()),
+  // ---------- EXPORT RECEIPTS ----------
+  getExportReceipts: async () => {
+    const response = await apiClient.get("/export-receipts");
+    return response.data;
+  },
 
-  // BRANDS
-  getBrands: async () => fetch(`${BASE_URL}/brands`).then(res => res.json()),
-
-  // LOCATIONS
-  getLocations: async () => fetch(`${BASE_URL}/locations`).then(res => res.json()),
-
-  // PRODUCTS
-  getProducts: async () => fetch(`${BASE_URL}/products`).then(res => res.json()),
-  getProductById: async (id) => fetch(`${BASE_URL}/products/${id}`).then(res => res.json()),
-  createProduct: async (data) =>
-    fetch(`${BASE_URL}/products`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).then(res => res.json()),
-  updateProduct: async (id, data) =>
-    fetch(`${BASE_URL}/products/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).then(res => res.json()),
-  deleteProduct: async (id) =>
-    fetch(`${BASE_URL}/products/${id}`, { method: 'DELETE' }).then(res => res.json()),
-
-  // IMPORT RECEIPTS
-  getImportReceipts: async () => fetch(`${BASE_URL}/import_receipts`).then(res => res.json()),
-  getImportReceiptById: async (id) =>
-    fetch(`${BASE_URL}/import_receipts/${id}`).then(res => res.json()),
-  createImportReceipt: async (data) =>
-    fetch(`${BASE_URL}/import_receipts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).then(res => res.json()),
-
-  // EXPORT RECEIPTS
-  getExportReceipts: async () => fetch(`${BASE_URL}/export_receipts`).then(res => res.json()),
-  getExportReceiptById: async (id) =>
-    fetch(`${BASE_URL}/export_receipts/${id}`).then(res => res.json()),
-  createExportReceipt: async (data) =>
-    fetch(`${BASE_URL}/export_receipts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).then(res => res.json()),
-
-  // REVENUES
-  getRevenues: async () => fetch(`${BASE_URL}/revenues`).then(res => res.json()),
-  createRevenue: async (data) =>
-    fetch(`${BASE_URL}/revenues`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).then(res => res.json()),
-
-  // HISTORY LOGS
-  getHistoryLogs: async () => fetch(`${BASE_URL}/history_logs`).then(res => res.json()),
-  createHistoryLog: async (data) =>
-    fetch(`${BASE_URL}/history_logs`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).then(res => res.json()),
+  // ---------- HISTORY LOGS ----------
+  getHistoryLogs: async () => {
+    const response = await apiClient.get("/history-logs");
+    return response.data;
+  },
 };
 
 export default api;

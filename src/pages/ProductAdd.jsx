@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/ProductEdit.scss"; // dùng lại style
+import api from "../services/api";
+import "../styles/ProductEdit.scss";
 
 export default function ProductAdd() {
   const navigate = useNavigate();
@@ -8,15 +9,48 @@ export default function ProductAdd() {
   const [formData, setFormData] = useState({
     name: "",
     product_code: "",
-    category: "",
-    brand: "",
-    unit: "",
-    location: "",
+    categoryId: "",
+    brandId: "",
+    unitId: "",
+    locationId: "",
     price: "",
     quantity: "",
+    importPrice: "",
     image_url: "",
     imageFile: null,
   });
+
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [units, setUnits] = useState([]);
+  const [locations, setLocations] = useState([]);
+
+  // Load options from backend
+  useEffect(() => {
+    const fetchSelections = async () => {
+      try {
+        const [cats, brs, unts, locs] = await Promise.all([
+          api.getCategories(),
+          api.getBrands(),
+          api.getUnits(),
+          api.getLocations(),
+        ]);
+        setCategories(cats);
+        setBrands(brs);
+        setUnits(unts);
+        setLocations(locs);
+      } catch (err) {
+        console.error("Lỗi khi tải dữ liệu select:", err);
+      }
+    };
+    fetchSelections();
+  }, []);
+
+  // Auto-generate product code
+  useEffect(() => {
+    const timestamp = Date.now().toString().slice(-4);
+    setFormData((prev) => ({ ...prev, product_code: `PR-${timestamp}` }));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -31,10 +65,29 @@ export default function ProductAdd() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Đã thêm sản phẩm mới!");
-    navigate("/products"); // hoặc giữ nguyên nếu muốn reset form
+    try {
+      // Map to DTO for backend
+      const submitData = {
+        productCode: formData.product_code,
+        name: formData.name,
+        categoryId: formData.categoryId ? parseInt(formData.categoryId) : null,
+        brandId: formData.brandId ? parseInt(formData.brandId) : null,
+        unitId: formData.unitId ? parseInt(formData.unitId) : null,
+        locationId: formData.locationId ? parseInt(formData.locationId) : null,
+        importPrice: parseFloat(formData.price) || 0,
+        stock: parseInt(formData.quantity) || 0,
+        imageFile: formData.imageFile,
+      };
+
+      await api.createProduct(submitData);
+      alert("Đã thêm sản phẩm mới!");
+      navigate("/products");
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data || "Có lỗi xảy ra khi thêm sản phẩm.");
+    }
   };
 
   return (
@@ -62,65 +115,77 @@ export default function ProductAdd() {
             type="text"
             name="product_code"
             value={formData.product_code}
-            onChange={handleChange}
+            readOnly
           />
         </div>
 
         <div className="field">
-          <label htmlFor="category">Danh mục</label>
+          <label htmlFor="categoryId">Danh mục</label>
           <select
-            id="category"
-            name="category"
-            value={formData.category}
+            id="categoryId"
+            name="categoryId"
+            value={formData.categoryId}
             onChange={handleChange}
           >
             <option value="">--Chọn danh mục--</option>
-            <option value="Thiết bị ngoại vi">Thiết bị ngoại vi</option>
-            <option value="Chuột">Chuột</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
           </select>
         </div>
 
         <div className="field">
-          <label htmlFor="brand">Thương hiệu</label>
+          <label htmlFor="brandId">Thương hiệu</label>
           <select
-            id="brand"
-            name="brand"
-            value={formData.brand}
+            id="brandId"
+            name="brandId"
+            value={formData.brandId}
             onChange={handleChange}
           >
             <option value="">--Chọn thương hiệu--</option>
-            <option value="Logitech">Logitech</option>
-            <option value="Razer">Razer</option>
+            {brands.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}
+              </option>
+            ))}
           </select>
         </div>
       </div>
 
       <div className="row">
         <div className="field">
-          <label htmlFor="unit">Đơn vị tính</label>
+          <label htmlFor="unitId">Đơn vị tính</label>
           <select
-            id="unit"
-            name="unit"
-            value={formData.unit}
+            id="unitId"
+            name="unitId"
+            value={formData.unitId}
             onChange={handleChange}
           >
             <option value="">--Chọn đơn vị--</option>
-            <option value="Chiếc">Chiếc</option>
-            <option value="Bộ">Bộ</option>
+            {units.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name}
+              </option>
+            ))}
           </select>
         </div>
 
         <div className="field">
-          <label htmlFor="location">Khu vực</label>
+          <label htmlFor="locationId">Khu vực</label>
           <select
-            id="location"
-            name="location"
-            value={formData.location}
+            id="locationId"
+            name="locationId"
+            value={formData.locationId}
             onChange={handleChange}
           >
             <option value="">--Chọn khu vực--</option>
-            <option value="Khu A1">Khu A1</option>
-            <option value="Khu B2">Khu B2</option>
+            {locations.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -154,12 +219,7 @@ export default function ProductAdd() {
             <img
               src={formData.image_url}
               alt="product"
-              style={{
-                height: "auto",
-                width: "auto",
-                maxWidth: "200px",
-                objectFit: "contain",
-              }}
+              style={{ maxWidth: "200px", objectFit: "contain" }}
             />
           )}
           <input

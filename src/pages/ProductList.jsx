@@ -1,10 +1,13 @@
+// src/pages/ProductList.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaCog, FaSortUp, FaSortDown } from "react-icons/fa";
+import api from "../services/api";
 import "../styles/ProductList.scss";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
   const [filterCategory, setFilterCategory] = useState("");
@@ -12,102 +15,103 @@ export default function ProductList() {
   const [filterStock, setFilterStock] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [confirmDeleteName, setConfirmDeleteName] = useState("");
+  const [backendError, setBackendError] = useState("");
 
   const dropdownRef = useRef({});
   const navigate = useNavigate();
 
+  // Lấy sản phẩm từ backend
   useEffect(() => {
-    const mockData = [
-      {
-        id: 1,
-        name: "Bàn phím cơ G6",
-        product_code: "SP001",
-        quantity: 15,
-        price: 1200000,
-        category_name: "Thiết bị ngoại vi",
-        brand_name: "Logitech",
-        image_url: "https://via.placeholder.com/50",
-        updated_at: "2025-08-06T10:00:00Z",
-      },
-      {
-        id: 2,
-        name: "Chuột không dây",
-        product_code: "SP002",
-        quantity: 0,
-        price: 450000,
-        category_name: "Chuột",
-        brand_name: "Razer",
-        image_url: "https://via.placeholder.com/50",
-        updated_at: "2025-08-05T14:30:00Z",
-      },
-    ];
-    setProducts(mockData);
-    setFilteredProducts(mockData);
+    const fetchProducts = async () => {
+      try {
+        const data = await api.getProducts();
+        console.log("👉 Products từ backend:", data);
+        setProducts(data);
+        setFilteredProducts(data);
+      } catch (err) {
+        console.error("Lỗi khi tải sản phẩm:", err.response?.data || err.message);
+        setBackendError("Không thể tải sản phẩm từ server");
+      }
+    };
+    fetchProducts();
   }, []);
 
+  // Đóng dropdown khi click ngoài
   useEffect(() => {
-  const handleClickOutside = (event) => {
-    const currentRef = dropdownRef.current[activeDropdown];
-    if (currentRef && !currentRef.contains(event.target)) {
-      setActiveDropdown(null);
-    }
-  };
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, [activeDropdown]);
+    const handleClickOutside = (event) => {
+      const currentRef = dropdownRef.current[activeDropdown];
+      if (currentRef && !currentRef.contains(event.target)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [activeDropdown]);
 
-
+  // Filter + search + sort
   useEffect(() => {
-    const result = products.filter((p) => {
+    let result = products;
+
+    // Filter
+    result = result.filter((p) => {
       const matchSearch =
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.product_code.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchCategory = !filterCategory || p.category_name === filterCategory;
-      const matchBrand = !filterBrand || p.brand_name === filterBrand;
+        p.productCode.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchCategory = !filterCategory || p.categoryName === filterCategory;
+      const matchBrand = !filterBrand || p.brandName === filterBrand;
       const matchStock =
-        !filterStock || (filterStock === "in" ? p.quantity > 0 : p.quantity === 0);
-
+        !filterStock || (filterStock === "in" ? p.stock > 0 : p.stock === 0);
       return matchSearch && matchCategory && matchBrand && matchStock;
     });
 
-    if (!filterCategory && !filterBrand && !filterStock && searchTerm.trim() === "") {
-      setFilteredProducts(products);
-    } else {
-      setFilteredProducts(result);
-    }
-  }, [products, filterCategory, filterBrand, filterStock, searchTerm]);
+    // Sort
+    result.sort((a, b) => {
+      let aVal = a[sortField];
+      let bVal = b[sortField];
+      if (sortField === "updatedAt") {
+        aVal = new Date(aVal);
+        bVal = new Date(bVal);
+      }
+      if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
 
+    setFilteredProducts(result);
+  }, [products, searchTerm, filterCategory, filterBrand, filterStock, sortField, sortOrder]);
+
+  // Thay đổi sắp xếp
   const handleSort = (field) => {
     const order = sortField === field && sortOrder === "asc" ? "desc" : "asc";
     setSortField(field);
     setSortOrder(order);
-
-    const sorted = [...filteredProducts].sort((a, b) => {
-      if (a[field] < b[field]) return order === "asc" ? -1 : 1;
-      if (a[field] > b[field]) return order === "asc" ? 1 : -1;
-      return 0;
-    });
-    setFilteredProducts(sorted);
   };
 
+  // Xử lý xóa sản phẩm
   const handleDeleteClick = (product) => {
     setConfirmDeleteId(product.id);
     setConfirmDeleteName(product.name);
   };
 
-  const confirmDeleteProduct = () => {
-    setProducts((prev) => prev.filter((p) => p.id !== confirmDeleteId));
-    setFilteredProducts((prev) => prev.filter((p) => p.id !== confirmDeleteId));
-    setConfirmDeleteId(null);
-    setConfirmDeleteName("");
+  const confirmDeleteProduct = async () => {
+    try {
+      await api.deleteProduct(confirmDeleteId);
+      setProducts((prev) => prev.filter((p) => p.id !== confirmDeleteId));
+      setFilteredProducts((prev) => prev.filter((p) => p.id !== confirmDeleteId));
+      setConfirmDeleteId(null);
+      setConfirmDeleteName("");
+      setBackendError("");
+    } catch (err) {
+      console.error("Lỗi khi xóa sản phẩm:", err.response?.data || err.message);
+      setBackendError("❌ Không thể xóa sản phẩm");
+    }
   };
 
+  // Chọn tất cả
   const handleSelectAll = (e) => {
     const checked = e.target.checked;
     setSelectAll(checked);
@@ -123,59 +127,72 @@ export default function ProductList() {
   return (
     <div className="product-list-page">
       <h2>📦 Danh sách sản phẩm</h2>
+      {backendError && <p className="error">{backendError}</p>}
 
       <div className="filters">
-        <select onChange={(e) => setFilterCategory(e.target.value)}>
-          <option value="">Tất cả danh mục</option>
-          <option value="Thiết bị ngoại vi">Thiết bị ngoại vi</option>
-          <option value="Chuột">Chuột</option>
-        </select>
-        <select onChange={(e) => setFilterBrand(e.target.value)}>
-          <option value="">Tất cả thương hiệu</option>
-          <option value="Logitech">Logitech</option>
-          <option value="Razer">Razer</option>
-        </select>
-        <select onChange={(e) => setFilterStock(e.target.value)}>
-          <option value="">Tất cả trạng thái</option>
-          <option value="in">Còn hàng</option>
-          <option value="out">Hết hàng</option>
-        </select>
-        <input
-          type="text"
-          placeholder="Tìm tên hoặc mã SP..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-      </div>
+  {/* Lọc danh mục */}
+  <select onChange={(e) => setFilterCategory(e.target.value)}>
+    <option value="">Tất cả danh mục</option>
+    {[...new Set(products.map(p => p.categoryName))].map((cat, i) => (
+      <option key={i} value={cat}>{cat}</option>
+    ))}
+  </select>
+
+  {/* Lọc thương hiệu */}
+  <select onChange={(e) => setFilterBrand(e.target.value)}>
+    <option value="">Tất cả thương hiệu</option>
+    {[...new Set(products.map(p => p.brandName))].map((brand, i) => (
+      <option key={i} value={brand}>{brand}</option>
+    ))}
+  </select>
+
+  {/* Lọc trạng thái tồn kho */}
+  <select onChange={(e) => setFilterStock(e.target.value)}>
+    <option value="">Tất cả trạng thái</option>
+    <option value="in">Còn hàng</option>
+    <option value="out">Hết hàng</option>
+  </select>
+
+  {/* Tìm kiếm theo tên hoặc mã */}
+  <input
+    type="text"
+    placeholder="Tìm tên hoặc mã SP..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="search-input"
+  />
+</div>
+
 
       <table className="product-table">
         <thead>
           <tr>
-            <th><input type="checkbox" checked={selectAll} onChange={handleSelectAll} /></th>
+            <th>
+              <input type="checkbox" checked={selectAll} onChange={handleSelectAll} />
+            </th>
             <th>Ảnh</th>
             <th onClick={() => handleSort("name")}>
               Tên
               <FaSortUp className={sortField === "name" && sortOrder === "asc" ? "active" : ""} />
               <FaSortDown className={sortField === "name" && sortOrder === "desc" ? "active" : ""} />
             </th>
-            <th onClick={() => handleSort("product_code")}>
+            <th onClick={() => handleSort("productCode")}>
               Mã SP
-              <FaSortUp className={sortField === "product_code" && sortOrder === "asc" ? "active" : ""} />
-              <FaSortDown className={sortField === "product_code" && sortOrder === "desc" ? "active" : ""} />
+              <FaSortUp className={sortField === "productCode" && sortOrder === "asc" ? "active" : ""} />
+              <FaSortDown className={sortField === "productCode" && sortOrder === "desc" ? "active" : ""} />
             </th>
             <th>Tồn kho</th>
-            <th onClick={() => handleSort("price")}>
+            <th onClick={() => handleSort("importPrice")}>
               Giá
-              <FaSortUp className={sortField === "price" && sortOrder === "asc" ? "active" : ""} />
-              <FaSortDown className={sortField === "price" && sortOrder === "desc" ? "active" : ""} />
+              <FaSortUp className={sortField === "importPrice" && sortOrder === "asc" ? "active" : ""} />
+              <FaSortDown className={sortField === "importPrice" && sortOrder === "desc" ? "active" : ""} />
             </th>
             <th>Danh mục</th>
             <th>Thương hiệu</th>
-            <th onClick={() => handleSort("updated_at")}>
+            <th onClick={() => handleSort("updatedAt")}>
               Ngày cập nhật
-              <FaSortUp className={sortField === "updated_at" && sortOrder === "asc" ? "active" : ""} />
-              <FaSortDown className={sortField === "updated_at" && sortOrder === "desc" ? "active" : ""} />
+              <FaSortUp className={sortField === "updatedAt" && sortOrder === "asc" ? "active" : ""} />
+              <FaSortDown className={sortField === "updatedAt" && sortOrder === "desc" ? "active" : ""} />
             </th>
             <th>Chi tiết</th>
           </tr>
@@ -190,18 +207,21 @@ export default function ProductList() {
                   onChange={() => handleSelectRow(p.id)}
                 />
               </td>
-              <td><img src={p.image_url} alt={p.name} width="50" /></td>
-              <td>{p.name}</td>
-              <td>{p.product_code}</td>
-              <td style={{ color: p.quantity === 0 ? "red" : "green" }}>
-                {p.quantity > 0 ? "Còn hàng" : "Hết hàng"}
+              <td>
+                <img src={p.imageUrl || "/no-image.png"} alt={p.name} width="50" />
+
               </td>
-              <td>{p.price.toLocaleString()} ₫</td>
-              <td>{p.category_name}</td>
-              <td>{p.brand_name}</td>
-              <td>{new Date(p.updated_at).toLocaleString()}</td>
+              <td>{p.name}</td>
+              <td>{p.productCode}</td>
+              <td style={{ color: p.stock === 0 ? "red" : "green" }}>
+                {p.stock > 0 ? "Còn hàng" : "Hết hàng"}
+              </td>
+              <td>{p.importPrice.toLocaleString()} ₫</td>
+              <td>{p.categoryName}</td>
+              <td>{p.brandName}</td>
+              <td>{new Date(p.updatedAt).toLocaleString()}</td>
               <td className="action-cell">
-                <div className="dropdown" ref={(el)=>(dropdownRef.current[p.id]=el)}>
+                <div className="dropdown" ref={(el) => (dropdownRef.current[p.id] = el)}>
                   <FaCog
                     className="icon"
                     onClick={() =>
@@ -225,10 +245,15 @@ export default function ProductList() {
       {confirmDeleteId !== null && (
         <div className="confirm-overlay">
           <div className="confirm-modal">
-            <p>Bạn có chắc chắn muốn xóa sản phẩm <strong>{confirmDeleteName}</strong> không?</p>
+            <p>
+              Bạn có chắc chắn muốn xóa sản phẩm{" "}
+              <strong>{confirmDeleteName}</strong> không?
+            </p>
             <div className="confirm-buttons">
               <button onClick={() => setConfirmDeleteId(null)}>Hủy</button>
-              <button onClick={confirmDeleteProduct} className="danger">Xác nhận</button>
+              <button onClick={confirmDeleteProduct} className="danger">
+                Xác nhận
+              </button>
             </div>
           </div>
         </div>

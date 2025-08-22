@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import '../styles/CreateExportReceipt.scss'; // Dùng lại style nếu chưa có file riêng
+import '../styles/CreateExportReceipt.scss'; // Dùng lại style
 
 const CreateImportReceipt = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [users, setUsers] = useState([]);            
   const [selectedItems, setSelectedItems] = useState([]);
   const [note, setNote] = useState('');
-  const [createdBy, setCreatedBy] = useState('');
+  const [createdBy, setCreatedBy] = useState('');    
 
   const [selectedProductId, setSelectedProductId] = useState('');
   const [selectedQuantity, setSelectedQuantity] = useState(1);
-  const [selectedPrice, setSelectedPrice] = useState(0);
   const [createdDate, setCreatedDate] = useState('');
 
+  // Lấy danh sách sản phẩm
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -27,6 +28,20 @@ const CreateImportReceipt = () => {
     fetchProducts();
   }, []);
 
+  // Lấy danh sách user
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const data = await api.getUsers();
+        setUsers(data);
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách user:', error);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Set ngày hôm nay
   useEffect(() => {
     const today = new Date();
     const formatted = today.toISOString().split('T')[0];
@@ -53,13 +68,11 @@ const CreateImportReceipt = () => {
     const item = {
       ...product,
       quantity: selectedQuantity,
-      import_price: selectedPrice || product.price || 0,
     };
 
     setSelectedItems((prev) => [...prev, item]);
     setSelectedProductId('');
     setSelectedQuantity(1);
-    setSelectedPrice(0);
   };
 
   const handleRemoveItem = (index) => {
@@ -76,14 +89,13 @@ const CreateImportReceipt = () => {
     }
 
     const newReceipt = {
-      import_code: `PNK-${Date.now()}`,
-      created_by: createdBy || 'admin',
-      created_at: createdDate,
+      importCode: `PNK-${Date.now()}`,
+      createdById: createdBy,
+      createdAt: createdDate,
       note,
       details: selectedItems.map((item) => ({
-        product_id: item.id,
-        quantity: item.quantity,
-        import_price: item.import_price,
+        productId: item.id,
+        quantity: item.quantity, // không gửi price nữa
       })),
     };
 
@@ -101,24 +113,36 @@ const CreateImportReceipt = () => {
     <div className="create-export-page">
       <h2>Tạo phiếu nhập kho</h2>
       <form onSubmit={handleSubmit}>
+        {/* Người tạo phiếu */}
         <div className="form-group">
           <label>Người tạo phiếu:</label>
-          <input
-            type="text"
+          <select
             value={createdBy}
             onChange={(e) => setCreatedBy(e.target.value)}
             required
-          />
+          >
+            <option value="">-- Chọn người tạo --</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.fullName || user.username}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {/* Ngày lập */}
         <div className="form-group">
           <label>Ngày lập:</label>
           <input type="date" value={createdDate} readOnly />
         </div>
+
+        {/* Ghi chú */}
         <div className="form-group">
           <label>Ghi chú:</label>
           <textarea value={note} onChange={(e) => setNote(e.target.value)} />
         </div>
 
+        {/* Chọn sản phẩm */}
         <div className="form-group">
           <label>Chọn sản phẩm:</label>
           <select
@@ -134,6 +158,7 @@ const CreateImportReceipt = () => {
           </select>
         </div>
 
+        {/* Nhập số lượng */}
         {selectedProductId && (
           <>
             <div className="form-group">
@@ -148,14 +173,13 @@ const CreateImportReceipt = () => {
               />
             </div>
 
-            
-
             <button className="button" type="button" onClick={handleAddProduct}>
               ➕ Thêm sản phẩm
             </button>
           </>
         )}
 
+        {/* Danh sách sản phẩm */}
         {selectedItems.length > 0 && (
           <table>
             <thead>
@@ -170,7 +194,7 @@ const CreateImportReceipt = () => {
               {selectedItems.map((item, index) => (
                 <tr key={index}>
                   <td>{item.name}</td>
-                  <td>{item.unit_name || '---'}</td>
+                  <td>{item.unitName || '---'}</td>
                   <td>{item.quantity}</td>
                   <td>
                     <button type="button" onClick={() => handleRemoveItem(index)}>

@@ -1,77 +1,116 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/LoginPage.scss";
 import bgImage from "../assets/img/bg-login.jpg";
+import api from "../services/api";
+import { AuthContext } from "../contexts/AuthContext";
 
-const LoginPage = ({ onLogin }) => {
-  const [username, setUsername] = useState("");
+const LoginPage = () => {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const { handleLogin } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  // Nếu đã login -> redirect về trang staff
+  useEffect(() => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (token) navigate("/staff", { replace: true });
+  }, [navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (username === "admin" && password === "admin") {
-      onLogin();
-    } else {
-      alert("Sai tài khoản hoặc mật khẩu");
+    setError("");
+    setLoading(true);
+
+    try {
+      const data = await api.login({ email, password });
+
+      if (!data || !data.token) {
+        throw new Error("Dữ liệu phản hồi không hợp lệ");
+      }
+
+      // Lưu token qua AuthContext (tự xử lý local/sessionStorage)
+      handleLogin(data.token, rememberMe);
+
+      navigate("/", { replace: true });
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Email hoặc mật khẩu không đúng";
+      setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div
-      className="login-page"
-      style={{
-        backgroundImage: `url(${bgImage})`,
-      }}
-    >
+    <div className="login-page" style={{ backgroundImage: `url(${bgImage})` }}>
       <div className="login-container">
-        <h2 className="shiny-text"> LOGIN</h2>
+        <h2 className="shiny-text">LOGIN</h2>
         <form onSubmit={handleSubmit}>
+          {/* Email */}
           <div className="form-group">
-            <label htmlFor="username">Tài khoản</label>
-            <div className="password-wrapper">
-              <input
-                id="username"
-                type="text"
-                placeholder="Tài khoản"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="Nhập email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
 
+          {/* Password */}
           <div className="form-group">
             <label htmlFor="password">Mật khẩu</label>
             <div className="password-wrapper">
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Mật khẩu"
+                placeholder="Nhập mật khẩu"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <span
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
+                style={{ cursor: "pointer" }}
               >
                 {showPassword ? "🙈" : "👁️"}
               </span>
             </div>
           </div>
 
+          {/* Options */}
           <div className="options-row">
             <label className="remember-me">
               <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={()=> setRememberMe(!rememberMe)}
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
               />
-              Ghi nhớ mật khẩu
+              Ghi nhớ đăng nhập
             </label>
-            <a href="#" className="forgot-password">Quên mật khẩu?</a>
+            <a href="#" className="forgot-password">
+              Quên mật khẩu?
+            </a>
           </div>
 
-          <button className="shiny-button" type="submit">LOGIN</button>
+          {/* Error message */}
+          {error && <div className="error-message">{error}</div>}
+
+          {/* Submit */}
+          <button className="shiny-button" type="submit" disabled={loading}>
+            {loading ? "Đang đăng nhập..." : "LOGIN"}
+          </button>
         </form>
       </div>
     </div>

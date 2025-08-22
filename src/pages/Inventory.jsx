@@ -71,14 +71,14 @@ export default function Inventory() {
 
   const handleExportExcel = () => {
     const worksheetData = filteredData.map((item) => ({
-      "Mã sản phẩm": item.code,
+      "Mã sản phẩm": item.productCode,
       "Tên sản phẩm": item.name,
-      "Thương hiệu": item.brand_name || "---",
-      "Danh mục": item.category_name || "---",
-      "Đơn vị": item.unit_name || "---",
-      "Giá nhập (₫)": item.import_price?.toLocaleString("vi-VN") || 0,
-      "Giá bán (₫)": item.price?.toLocaleString("vi-VN") || 0,
-      "Số lượng tồn": item.quantity || 0,
+      "Thương hiệu": item.brandName || "---",
+      "Danh mục": item.categoryName || "---",
+      "Đơn vị": item.unitName || "---",
+      "Giá nhập (₫)": item.importPrice?.toLocaleString("vi-VN") || 0,
+      // "Giá bán (₫)": item.price?.toLocaleString("vi-VN") || 0,
+      "Số lượng tồn": item.stock || 0,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
@@ -123,27 +123,27 @@ export default function Inventory() {
       <table>
         <thead>
           <tr>
-            <th onClick={() => handleSort('product_code')}>Mã {getSortIcon('product_code')}</th>
+            <th onClick={() => handleSort('productCode')}>Mã {getSortIcon('productCode')}</th>
             <th onClick={() => handleSort('name')}>Tên sản phẩm {getSortIcon('name')}</th>
-            <th onClick={() => handleSort('category_name')}>Danh mục {getSortIcon('category_name')}</th>
-            <th onClick={() => handleSort('brand_name')}>Thương hiệu {getSortIcon('brand_name')}</th>
-            <th onClick={() => handleSort('unit_name')}>Đơn vị {getSortIcon('unit_name')}</th>
-            <th onClick={() => handleSort('price')}>Giá nhập (₫) {getSortIcon('import_price')}</th>
-            <th onClick={() => handleSort('import_price')}>Giá bán (₫) {getSortIcon('import_price')}</th>
-            <th onClick={() => handleSort('quantity')}>Tồn kho {getSortIcon('quantity')}</th>
+            <th onClick={() => handleSort('categoryName')}>Danh mục {getSortIcon('categoryName')}</th>
+            <th onClick={() => handleSort('brandName')}>Thương hiệu {getSortIcon('brandName')}</th>
+            <th onClick={() => handleSort('unitName')}>Đơn vị {getSortIcon('unitName')}</th>
+            <th onClick={() => handleSort('importPrice')}>Giá nhập (₫) {getSortIcon('importPrice')}</th>
+            {/* <th onClick={() => handleSort('import_price')}>Giá bán (₫) {getSortIcon('import_price')}</th> */}
+            <th onClick={() => handleSort('stock')}>Tồn kho {getSortIcon('stock')}</th>
           </tr>
         </thead>
         <tbody>
           {filteredData.map((item) => (
             <tr key={item.id}>
-              <td>{item.product_code}</td>
+              <td>{item.productCode}</td>
               <td>{item.name}</td>
-              <td>{item.category_name || "---"}</td>
-              <td>{item.brand_name || "---"}</td>
-              <td>{item.unit_name || "---"}</td>
-              <td>{item.price?.toLocaleString("vi-VN") || 0}</td>
-              <td>{item.import_price?.toLocaleString("vi-VN") || 0}</td>
-              <td>{item.quantity || 0}</td>
+              <td>{item.categoryName || "---"}</td>
+              <td>{item.brandName || "---"}</td>
+              <td>{item.unitName || "---"}</td>
+              <td>{item.importPrice?.toLocaleString("vi-VN") || 0}</td>
+              {/* <td>{item.import_price?.toLocaleString("vi-VN") || 0}</td> */}
+              <td>{item.stock || 0}</td>
             </tr>
           ))}
         </tbody>

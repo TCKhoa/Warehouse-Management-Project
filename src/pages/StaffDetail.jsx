@@ -28,20 +28,26 @@ export default function StaffDetail() {
   };
 
   const handleSave = async () => {
-    await api.updateUser(formData);
-    setStaff(formData);
+  try {
+    const updated = await api.updateUser(staff.id, formData);
+    setStaff(updated);   // cập nhật state với dữ liệu trả về từ backend
     setIsEditing(false);
-  };
+  } catch (err) {
+    console.error('Lỗi khi cập nhật nhân viên:', err);
+    alert('Cập nhật thất bại!');
+  }
+};
+
 
   return (
     <div className="staff-detail">
-      <h2>👤 Chi tiết nhân viên <span className="staff-id">#{staff.id}</span></h2>
+      <h2>👤 Chi tiết nhân viên <span className="staff-id">#{staff.staffCode}</span></h2>
 
       <div className="grid-info">
         <div className="field">
           <label>Họ tên</label>
           {isEditing ? (
-            <input className="field-value" name="username" value={formData.username} onChange={handleChange} />
+            <input className="field-value" name="username" value={formData.username || ''} onChange={handleChange} />
           ) : (
             <div className="field-value">{staff.username}</div>
           )}
@@ -102,18 +108,18 @@ export default function StaffDetail() {
             <input
             className="field-value"
               type="date"
-              name="created_at"
-              value={formData.created_at?.slice(0, 10) || ''}
+              name="createdAt"
+              value={formData.createdAt?.slice(0, 10) || ''}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  created_at: e.target.value + 'T00:00:00Z',
+                  createdAt: e.target.value + 'T00:00:00Z',
                 }))
               }
             />
           ) : (
             <div className="field-value">
-              {new Date(staff.created_at).toLocaleDateString('vi-VN')}
+              {new Date(staff.createdAt).toLocaleDateString('vi-VN')}
             </div>
           )}
         </div>

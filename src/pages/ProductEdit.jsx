@@ -1,6 +1,8 @@
+// src/pages/ProductEdit.js
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../styles/ProductEdit.scss";
+import api from "../services/api";
 
 export default function ProductEdit() {
   const { id } = useParams();
@@ -8,31 +10,60 @@ export default function ProductEdit() {
 
   const [formData, setFormData] = useState({
     name: "",
-    product_code: "",
-    category: "",
-    brand: "",
-    unit: "",
-    location: "",
-    price: "",
-    quantity: "",
+    productCode: "",
+    categoryId: "",
+    brandId: "",
+    unitId: "",
+    locationId: "",
+    importPrice: "",
+    stock: "",
     image_url: "",
     imageFile: null,
   });
 
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [units, setUnits] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  // Lấy dữ liệu phụ trợ
   useEffect(() => {
-    // Dữ liệu giả lập để hiển thị
-    const data = {
-      name: "Bàn phím cơ G6",
-      product_code: "SP001",
-      category: "Thiết bị ngoại vi",
-      brand: "Logitech",
-      unit: "Chiếc",
-      location: "Khu A1",
-      price: 1200000,
-      quantity: 15,
-      image_url: "https://via.placeholder.com/100",
-    };
-    setFormData((prev) => ({ ...prev, ...data }));
+    Promise.all([api.getCategories(), api.getBrands(), api.getUnits(), api.getLocations()])
+      .then(([cats, brs, uns, locs]) => {
+        setCategories(cats);
+        setBrands(brs);
+        setUnits(uns);
+        setLocations(locs);
+      })
+      .catch(() => setError("Không load được dữ liệu phụ trợ!"));
+  }, []);
+
+  // Lấy thông tin sản phẩm
+  useEffect(() => {
+    api
+      .getProductById(id)
+      .then((res) => {
+        setFormData({
+          name: res.name || "",
+          productCode: res.productCode || "",
+          categoryId: res.categoryId || "",
+          brandId: res.brandId || "",
+          unitId: res.unitId || "",
+          locationId: res.locationId || "",
+          importPrice: res.importPrice ?? 0,
+          stock: res.stock ?? 0,
+          image_url: res.imageUrl || "",
+          imageFile: null,
+        });
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Không tìm thấy sản phẩm!");
+        setLoading(false);
+      });
   }, [id]);
 
   const handleChange = (e) => {
@@ -48,146 +79,204 @@ export default function ProductEdit() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Cập nhật thành công!");
-    navigate("/products");
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const dataToSend = { ...formData };
+      delete dataToSend.imageFile;
+      delete dataToSend.image_url;
+
+      // Convert số
+      dataToSend.importPrice = Number(dataToSend.importPrice) || 0;
+      dataToSend.stock = Number(dataToSend.stock) || 0;
+
+      // Convert ID sang Number hoặc null
+      ["categoryId", "brandId", "unitId", "locationId"].forEach((key) => {
+        if (!dataToSend[key]) dataToSend[key] = null;
+        else dataToSend[key] = Number(dataToSend[key]);
+      });
+
+      // FE
+const formDataToSend = new FormData();
+formDataToSend.append("product", JSON.stringify(dataToSend)); // remove Blob
+if (formData.imageFile) formDataToSend.append("imageFile", formData.imageFile);
+
+await api.updateProduct(id, formDataToSend);
+
+      alert("✅ Cập nhật sản phẩm thành công!");
+      navigate("/products");
+    } catch (err) {
+      console.error(err);
+      setError("❌ Cập nhật thất bại. Vui lòng thử lại!");
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  if (loading) return <p>Đang tải dữ liệu...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div className="product-edit-page">
       <h2>🖊️ Chỉnh sửa sản phẩm</h2>
-
-      <div className="row full-width">
-        <div className="field">
-          <label htmlFor="name">Tên sản phẩm</label>
-          <input
-            id="name"
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-
-      <div className="row">
-        <div className="field">
-          <label htmlFor="product_code">Mã sản phẩm</label>
-          <input
-            id="product_code"
-            type="text"
-            name="product_code"
-            value={formData.product_code}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="field">
-          <label htmlFor="category">Danh mục</label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-          >
-            <option value="">--Chọn danh mục--</option>
-            <option value="Thiết bị ngoại vi">Thiết bị ngoại vi</option>
-            <option value="Chuột">Chuột</option>
-          </select>
-        </div>
-
-        <div className="field">
-          <label htmlFor="brand">Thương hiệu</label>
-          <select
-            id="brand"
-            name="brand"
-            value={formData.brand}
-            onChange={handleChange}
-          >
-            <option value="">--Chọn thương hiệu--</option>
-            <option value="Logitech">Logitech</option>
-            <option value="Razer">Razer</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="row">
-        <div className="field">
-          <label htmlFor="unit">Đơn vị tính</label>
-          <select
-            id="unit"
-            name="unit"
-            value={formData.unit}
-            onChange={handleChange}
-          >
-            <option value="">--Chọn đơn vị--</option>
-            <option value="Chiếc">Chiếc</option>
-            <option value="Bộ">Bộ</option>
-          </select>
-        </div>
-
-        <div className="field">
-          <label htmlFor="location">Khu vực</label>
-          <select
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-          >
-            <option value="">--Chọn khu vực--</option>
-            <option value="Khu A1">Khu A1</option>
-            <option value="Khu B2">Khu B2</option>
-          </select>
-        </div>
-
-        <div className="field">
-          <label htmlFor="price">Giá (VND)</label>
-          <input
-            id="price"
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="field">
-          <label htmlFor="quantity">Số lượng</label>
-          <input
-            id="quantity"
-            type="number"
-            name="quantity"
-            value={formData.quantity}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-
-      <div className="row full-width">
-        <div className="field">
-          <label>Ảnh sản phẩm</label>
-          {formData.image_url && (
-            <img
-              src={formData.image_url}
-              alt="product"
-              className="preview-image"
+      <form onSubmit={handleSubmit}>
+        {/* Tên sản phẩm */}
+        <div className="row full-width">
+          <div className="field">
+            <label htmlFor="name">Tên sản phẩm</label>
+            <input
+              id="name"
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
             />
-          )}
-          <input
-            type="file"
-            name="imageFile"
-            accept="image/*"
-            onChange={handleChange}
-          />
+          </div>
         </div>
-      </div>
 
-      <div className="row full-width">
-        <button type="submit" onClick={handleSubmit}>
-          Lưu thay đổi
-        </button>
-      </div>
+        {/* Mã SP + Danh mục + Thương hiệu */}
+        <div className="row">
+          <div className="field">
+            <label htmlFor="productCode">Mã sản phẩm</label>
+            <input
+              id="productCode"
+              type="text"
+              name="productCode"
+              value={formData.productCode}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="categoryId">Danh mục</label>
+            <select
+              id="categoryId"
+              name="categoryId"
+              value={formData.categoryId}
+              onChange={handleChange}
+              required
+            >
+              <option value="">--Chọn danh mục--</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="field">
+            <label htmlFor="brandId">Thương hiệu</label>
+            <select
+              id="brandId"
+              name="brandId"
+              value={formData.brandId}
+              onChange={handleChange}
+              required
+            >
+              <option value="">--Chọn thương hiệu--</option>
+              {brands.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Đơn vị + Khu vực + Giá + SL */}
+        <div className="row">
+          <div className="field">
+            <label htmlFor="unitId">Đơn vị tính</label>
+            <select
+              id="unitId"
+              name="unitId"
+              value={formData.unitId}
+              onChange={handleChange}
+              required
+            >
+              <option value="">--Chọn đơn vị--</option>
+              {units.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="field">
+            <label htmlFor="locationId">Khu vực</label>
+            <select
+              id="locationId"
+              name="locationId"
+              value={formData.locationId}
+              onChange={handleChange}
+              required
+            >
+              <option value="">--Chọn khu vực--</option>
+              {locations.map((loc) => (
+                <option key={loc.id} value={loc.id}>
+                  {loc.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="field">
+            <label htmlFor="importPrice">Giá (VND)</label>
+            <input
+              id="importPrice"
+              type="number"
+              name="importPrice"
+              value={formData.importPrice}
+              onChange={handleChange}
+              required
+              min="0"
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="stock">Số lượng</label>
+            <input
+              id="stock"
+              type="number"
+              name="stock"
+              value={formData.stock}
+              onChange={handleChange}
+              required
+              min="0"
+            />
+          </div>
+        </div>
+
+        {/* Ảnh */}
+        <div className="row full-width">
+          <div className="field">
+            <label>Ảnh sản phẩm</label>
+            {formData.image_url && (
+              <img
+                src={formData.image_url || "/no-image.png"}
+                alt={formData.name}
+                width="80"
+                style={{ marginBottom: "10px", borderRadius: "8px" }}
+              />
+            )}
+            <input type="file" name="imageFile" accept="image/*" onChange={handleChange} />
+          </div>
+        </div>
+
+        {/* Submit */}
+        <div className="row full-width">
+          <button type="submit" disabled={submitting}>
+            {submitting ? "⏳ Đang lưu..." : "💾 Lưu thay đổi"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
