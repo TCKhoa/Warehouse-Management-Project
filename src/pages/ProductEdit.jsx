@@ -21,6 +21,9 @@ export default function ProductEdit() {
     imageFile: null,
   });
 
+  const [showCustomUnit, setShowCustomUnit] = useState(false);
+  const [customUnitValue, setCustomUnitValue] = useState("");
+
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [units, setUnits] = useState([]);
@@ -74,9 +77,19 @@ export default function ProductEdit() {
         imageFile: files[0],
         image_url: URL.createObjectURL(files[0]),
       }));
+    } else if (name === "unit" && value === "Khác") {
+      setShowCustomUnit(true);
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
+  };
+
+  const handleCustomUnitSave = () => {
+    if (customUnitValue.trim() !== "") {
+      setFormData((prev) => ({ ...prev, unit: customUnitValue.trim() }));
+    }
+    setShowCustomUnit(false);
+    setCustomUnitValue("");
   };
 
   const handleSubmit = async (e) => {
@@ -189,25 +202,20 @@ await api.updateProduct(id, formDataToSend);
           </div>
         </div>
 
-        {/* Đơn vị + Khu vực + Giá + SL */}
-        <div className="row">
-          <div className="field">
-            <label htmlFor="unitId">Đơn vị tính</label>
-            <select
-              id="unitId"
-              name="unitId"
-              value={formData.unitId}
-              onChange={handleChange}
-              required
-            >
-              <option value="">--Chọn đơn vị--</option>
-              {units.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className="row">
+        <div className="field">
+          <label htmlFor="unit">Đơn vị tính</label>
+          <select
+            id="unit"
+            name="unit"
+            value={formData.unit}
+            onChange={handleChange}
+          >
+            <option value="">--Chọn đơn vị--</option>
+            <option value="Chiếc">Chiếc</option>
+            <option value="Bộ">Bộ</option>
+          </select>
+        </div>
 
           <div className="field">
             <label htmlFor="locationId">Khu vực</label>
@@ -270,13 +278,11 @@ await api.updateProduct(id, formDataToSend);
           </div>
         </div>
 
-        {/* Submit */}
-        <div className="row full-width">
-          <button type="submit" disabled={submitting}>
-            {submitting ? "⏳ Đang lưu..." : "💾 Lưu thay đổi"}
-          </button>
-        </div>
-      </form>
+      <div className="row full-width">
+        <button type="submit" onClick={handleSubmit}>
+          Lưu thay đổi
+        </button>
+      </div>
     </div>
   );
 }
