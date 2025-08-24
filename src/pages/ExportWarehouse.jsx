@@ -10,7 +10,7 @@ const ExportWarehouse = () => {
   useEffect(() => {
     const fetchExportReceipts = async () => {
       try {
-        const data = await api.getExportReceipts();
+        const data = await api.getExportReceipts(); // trả về DTO
         setExportReceipts(data);
       } catch (error) {
         console.error('Lỗi khi lấy danh sách phiếu xuất kho:', error);
@@ -29,7 +29,9 @@ const ExportWarehouse = () => {
     <div className="export-receipts">
       <div className="header">
         <h2>Lịch sử phiếu xuất kho</h2>
-        <button className="create-button" onClick={() => navigate('/export-receipts/new')}>+ Tạo phiếu xuất kho</button>
+        <button className="create-button" onClick={() => navigate('/export-receipts/new')}>
+          + Tạo phiếu xuất kho
+        </button>
       </div>
 
       <table className="receipts-table">
@@ -44,15 +46,16 @@ const ExportWarehouse = () => {
         </thead>
         <tbody>
           {exportReceipts.map((receipt) => {
-            const total = receipt.details.reduce(
-              (sum, item) => sum + item.quantity * item.export_price,
+            const total = (receipt.details || []).reduce(
+              (sum, item) => sum + (Number(item.quantity) || 0) * (Number(item.price) || 0),
               0
             );
+
             return (
               <tr key={receipt.id}>
-                <td>{receipt.export_code}</td>
-                <td>{new Date(receipt.created_at).toLocaleDateString('vi-VN')}</td>
-                <td>{receipt.created_by}</td>
+                <td>{receipt.exportCode}</td>
+                <td>{new Date(receipt.createdAt).toLocaleDateString('vi-VN')}</td>
+                <td>{receipt.createdByUsername || 'Không xác định'}</td>
                 <td>{formatCurrency(total)}</td>
                 <td>
                   <button onClick={() => navigate(`/export-receipts/${receipt.id}`)}>

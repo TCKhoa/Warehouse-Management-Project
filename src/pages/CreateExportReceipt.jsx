@@ -6,15 +6,17 @@ import '../styles/CreateExportReceipt.scss';
 const CreateExportReceipt = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [users, setUsers] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [note, setNote] = useState('');
-  const [createdBy, setCreatedBy] = useState('');
-
+  const [createdById, setCreatedById] = useState('');
   const [selectedProductId, setSelectedProductId] = useState('');
   const [selectedQuantity, setSelectedQuantity] = useState(1);
-  const [selectedPrice, setSelectedPrice] = useState(0);
+  const [selectedPrice, setSelectedPrice] = useState('');
   const [createdDate, setCreatedDate] = useState('');
+  const [errorMessage, setErrorMessage] = useState(''); // <-- state lưu lỗi
 
+  // Lấy danh sách sản phẩm
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -26,13 +28,27 @@ const CreateExportReceipt = () => {
     };
     fetchProducts();
   }, []);
+
+  // Lấy danh sách user
   useEffect(() => {
-  const today = new Date();
-  const formatted = today.toISOString().split('T')[0]; // yyyy-mm-dd
-  setCreatedDate(formatted);
-}, []);
+    const fetchUsers = async () => {
+      try {
+        const data = await api.getUsers();
+        setUsers(data);
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách user:', error);
+      }
+    };
+    fetchUsers();
+  }, []);
 
+  // Lấy ngày hiện tại
+  useEffect(() => {
+    const today = new Date();
+    setCreatedDate(today.toISOString().split('T')[0]);
+  }, []);
 
+  // Thêm sản phẩm vào danh sách xuất
   const handleAddProduct = () => {
     if (!selectedProductId) {
       alert('Vui lòng chọn sản phẩm');
@@ -50,70 +66,113 @@ const CreateExportReceipt = () => {
       return;
     }
 
+    const price = Number(product.price ?? product.importPrice ?? 0);
+    const unitName = product.unitName || (product.unit ? product.unit.name : '---');
+
     const item = {
-      ...product,
+      id: product.id,
+      name: product.name,
+      price,
       quantity: selectedQuantity,
-      export_price: selectedPrice || product.price || 0,
+      export_price: selectedPrice ? Number(selectedPrice) : price,
+      unit_name: unitName,
     };
 
     setSelectedItems((prev) => [...prev, item]);
     setSelectedProductId('');
     setSelectedQuantity(1);
-    setSelectedPrice(0);
+    setSelectedPrice('');
   };
 
+  // Xóa sản phẩm khỏi danh sách
   const handleRemoveItem = (index) => {
     const updatedItems = [...selectedItems];
     updatedItems.splice(index, 1);
     setSelectedItems(updatedItems);
   };
 
+  // Submit phiếu xuất kho
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage(''); // reset lỗi trước khi submit
+
     if (selectedItems.length === 0) {
-      alert('Vui lòng thêm ít nhất một sản phẩm!');
+      setErrorMessage('Vui lòng thêm ít nhất một sản phẩm!');
       return;
     }
 
+    if (!createdById) {
+      setErrorMessage('Vui lòng chọn người tạo phiếu!');
+      return;
+    }
+
+    const createdAtISO = `${createdDate}T00:00:00`;
+
     const newReceipt = {
-      export_code: `PXK-${Date.now()}`,
-      created_by: createdBy || 'admin',
-      created_at: createdDate,
-      note,
+      exportReceipt: {
+        exportCode: `PXK-${Date.now()}`,
+        createdBy: { id: createdById },
+        createdAt: createdAtISO,
+        note,
+      },
       details: selectedItems.map((item) => ({
-        product_id: item.id,
+        productId: item.id,
         quantity: item.quantity,
-        export_price: item.export_price,
+        price: item.export_price,
       })),
     };
 
     try {
       const savedReceipt = await api.createExportReceipt(newReceipt);
-      alert('Tạo phiếu xuất kho thành công!');
+      alert('✅ Tạo phiếu xuất kho thành công!');
       navigate(`/export-receipts/${savedReceipt.id}`);
     } catch (err) {
       console.error('Lỗi tạo phiếu:', err);
-      alert('Tạo phiếu thất bại!');
+
+      // Nếu BE trả JSON có message
+      if (err.response && err.response.data && err.response.data.message) {
+        setErrorMessage(err.response.data.message);
+      } else {
+        setErrorMessage('Tạo phiếu thất bại! Vui lòng thử lại.');
+      }
     }
   };
+
+  const formatCurrency = (amount) =>
+    Number(amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 
   return (
     <div className="create-export-page">
       <h2>Tạo phiếu xuất kho</h2>
+
+      {errorMessage && (
+        <div className="error-message">
+          ❌ {errorMessage}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Người tạo phiếu:</label>
-          <input
-            type="text"
-            value={createdBy}
-            onChange={(e) => setCreatedBy(e.target.value)}
+          <select
+            value={createdById}
+            onChange={(e) => setCreatedById(e.target.value)}
             required
-          />
+          >
+            <option value="">-- Chọn người tạo --</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name} ({user.username})
+              </option>
+            ))}
+          </select>
         </div>
+
         <div className="form-group">
           <label>Ngày lập:</label>
           <input type="date" value={createdDate} readOnly />
         </div>
+
         <div className="form-group">
           <label>Ghi chú:</label>
           <textarea value={note} onChange={(e) => setNote(e.target.value)} />
@@ -157,6 +216,7 @@ const CreateExportReceipt = () => {
                 onChange={(e) =>
                   setSelectedPrice(Math.max(0, parseFloat(e.target.value)))
                 }
+                placeholder="Mặc định bằng giá sản phẩm"
               />
             </div>
 
@@ -183,13 +243,11 @@ const CreateExportReceipt = () => {
               {selectedItems.map((item, index) => (
                 <tr key={index}>
                   <td>{item.name}</td>
-                  <td>{item.unit_name || '---'}</td>
-                  <td>{item.price?.toLocaleString('vi-VN') || 0} ₫</td>
+                  <td>{item.unit_name}</td>
+                  <td>{formatCurrency(item.price)}</td>
                   <td>{item.quantity}</td>
-                  <td>{item.export_price.toLocaleString('vi-VN')} ₫</td>
-                  <td>
-                    {(item.quantity * item.export_price).toLocaleString('vi-VN')} ₫
-                  </td>
+                  <td>{formatCurrency(item.export_price)}</td>
+                  <td>{formatCurrency(item.quantity * item.export_price)}</td>
                   <td>
                     <button type="button" onClick={() => handleRemoveItem(index)}>
                       ❌
@@ -202,7 +260,7 @@ const CreateExportReceipt = () => {
         )}
 
         <button type="submit" className="submit-btn">
-          ✅ Xuất phiếu thu
+          ✅ Xuất phiếu kho
         </button>
       </form>
     </div>

@@ -250,10 +250,36 @@ const api = {
 
 
   // ---------- EXPORT RECEIPTS ----------
-  getExportReceipts: async () => {
-    const response = await apiClient.get("/export-receipts");
-    return response.data;
-  },
+getExportReceipts: async () => {
+  const response = await apiClient.get("/export-receipts");
+  return response.data;
+},
+
+getExportReceiptById: async (id) => {
+  const response = await apiClient.get(`/export-receipts/${id}`);
+  // Trả về đúng DTO từ BE
+  return response.data;
+},
+
+createExportReceipt: async (data) => {
+  const response = await apiClient.post("/export-receipts", data, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return response.data;
+},
+
+updateExportReceipt: async (id, data) => {
+  const response = await apiClient.put(`/export-receipts/${id}`, data, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return response.data;
+},
+
+deleteExportReceipt: async (id) => {
+  const response = await apiClient.delete(`/export-receipts/${id}`);
+  return response.data;
+},
+
 
   // ---------- HISTORY LOGS ----------
   getHistoryLogs: async () => {

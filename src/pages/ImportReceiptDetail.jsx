@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import '../styles/ExportReceiptDetail.scss';
-import logo from '../assets/img/warehouse.png'; // Logo kho nếu có
+import logo from '../assets/img/logoden.png'; // Logo kho nếu có
 
 const ImportReceiptDetail = () => {
   const { id } = useParams();

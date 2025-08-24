@@ -1,20 +1,23 @@
+// src/pages/ExportReceiptDetail.jsx
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api from '../services/api';
 import '../styles/ExportReceiptDetail.scss';
-import logo from '../assets/img/warehouse.png'; // Thêm dòng này nếu có logo
+import logo from '../assets/img/logoden.png';
 
 const ExportReceiptDetail = () => {
   const { id } = useParams();
   const [receipt, setReceipt] = useState(null);
   const printRef = useRef();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchReceipt = async () => {
       try {
         const data = await api.getExportReceiptById(id);
-        setReceipt(data);
+        setReceipt({
+          ...data,
+          details: data.details || [], // đảm bảo luôn là mảng
+        });
       } catch (err) {
         console.error('Lỗi khi lấy chi tiết phiếu:', err);
       }
@@ -23,10 +26,10 @@ const ExportReceiptDetail = () => {
   }, [id]);
 
   const formatCurrency = (amount) =>
-    amount.toLocaleString('vi-VN', {
+    amount?.toLocaleString('vi-VN', {
       style: 'currency',
       currency: 'VND',
-    });
+    }) || '0 ₫';
 
   const handlePrint = () => {
     const printContents = printRef.current.innerHTML;
@@ -50,24 +53,14 @@ const ExportReceiptDetail = () => {
               padding: 8px;
               text-align: center;
             }
-            th {
-              background-color: #f0f0f0;
-            }
+            th { background-color: #f0f0f0; }
             .footer {
               margin-top: 30px;
               display: flex;
               justify-content: space-between;
             }
-            .footer div {
-              text-align: center;
-              width: 30%;
-            }
-            .logo {
-              width: 120px;
-              height: auto;
-              display: block;
-              margin: 0 auto 20px auto;
-            }
+            .footer div { text-align: center; width: 30%; }
+            .logo { width: 120px; height: auto; display: block; margin: 0 auto 20px auto; }
           </style>
         </head>
         <body>
@@ -85,14 +78,13 @@ const ExportReceiptDetail = () => {
     <div className="print-area">
       <div className="receipt-detail-page">
         <div ref={printRef}>
-          {/* Logo hiển thị */}
           <img src={logo} alt="Logo" className="logo" />
           <h2>PHIẾU XUẤT KHO</h2>
 
           <div className="info">
-            <p><strong>Mã phiếu:</strong> {receipt.export_code}</p>
-            <p><strong>Ngày tạo:</strong> {new Date(receipt.created_at).toLocaleDateString('vi-VN')}</p>
-            <p><strong>Người thực hiện:</strong> {receipt.created_by}</p>
+            <p><strong>Mã phiếu:</strong> {receipt.exportCode}</p>
+            <p><strong>Ngày tạo:</strong> {new Date(receipt.createdAt).toLocaleDateString('vi-VN')}</p>
+            <p><strong>Người thực hiện:</strong> {receipt.createdByUsername || 'Không xác định'}</p>
             <p><strong>Ghi chú:</strong> {receipt.note || 'Không có'}</p>
           </div>
 
@@ -102,8 +94,6 @@ const ExportReceiptDetail = () => {
                 <th>STT</th>
                 <th>Mã SP</th>
                 <th>Tên SP</th>
-                <th>Danh mục</th>
-                <th>Thương hiệu</th>
                 <th>Đơn vị</th>
                 <th>Số lượng</th>
                 <th>Giá xuất</th>
@@ -111,19 +101,23 @@ const ExportReceiptDetail = () => {
               </tr>
             </thead>
             <tbody>
-              {receipt.details.map((item, index) => (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{item.product_code}</td>
-                  <td>{item.product_name}</td>
-                  <td>{item.category_name}</td>
-                  <td>{item.brand_name}</td>
-                  <td>{item.unit_name}</td>
-                  <td>{item.quantity}</td>
-                  <td>{formatCurrency(item.export_price)}</td>
-                  <td>{formatCurrency(item.quantity * item.export_price)}</td>
+              {receipt.details?.length > 0 ? (
+                receipt.details.map((item, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{item.productCode}</td>
+                    <td>{item.productName}</td>
+                    <td>{item.unitName}</td>
+                    <td>{item.quantity}</td>
+                    <td>{formatCurrency(item.exportPrice || item.price)}</td>
+                    <td>{formatCurrency(item.quantity * (item.exportPrice || item.price))}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7">Không có sản phẩm</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
 

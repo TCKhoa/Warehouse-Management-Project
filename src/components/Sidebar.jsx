@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { IoChevronDownOutline, IoChevronUpOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import "../styles/Sidebar.scss";
-import logo from "../assets/img/warehouse.png"
+import logo from "../assets/img/warehouse.png";
 
 export default function Sidebar({ isAdmin }) {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -15,17 +15,24 @@ export default function Sidebar({ isAdmin }) {
     <div className="sidebar">
       <h1 className="sidebar-logo">
         <Link to="/">
-        <img src={logo} alt="Logo" className="logo-image" />
+          <img src={logo} alt="Logo" className="logo-image" />
         </Link>
-        </h1>
+      </h1>
       <ul className="sidebar-menu">
 
         {/* Dashboard */}
         <li className="menu-item has-sub">
-          <div className="menu-label" onClick={() => toggleDropdown("dashboard")}>
+          <div
+            className="menu-label"
+            onClick={() => toggleDropdown("dashboard")}
+          >
             <span>Dashboard</span>
             <span className="menu-icon">
-              {openDropdown === "dashboard" ? <IoChevronUpOutline /> : <IoChevronDownOutline />}
+              {openDropdown === "dashboard" ? (
+                <IoChevronUpOutline />
+              ) : (
+                <IoChevronDownOutline />
+              )}
             </span>
           </div>
           {openDropdown === "dashboard" && (
@@ -45,7 +52,11 @@ export default function Sidebar({ isAdmin }) {
           <div className="menu-label" onClick={() => toggleDropdown("sanPham")}>
             <span>Sản phẩm</span>
             <span className="menu-icon">
-              {openDropdown === "sanPham" ? <IoChevronUpOutline /> : <IoChevronDownOutline />}
+              {openDropdown === "sanPham" ? (
+                <IoChevronUpOutline />
+              ) : (
+                <IoChevronDownOutline />
+              )}
             </span>
           </div>
           {openDropdown === "sanPham" && (
@@ -66,13 +77,55 @@ export default function Sidebar({ isAdmin }) {
           )}
         </li>
 
-        {/* Các mục đơn */}
-        <li className="menu-item">
-          <Link to="/import">Nhập kho</Link>
+        {/* Nhập kho */}
+        <li className="menu-item has-sub">
+          <div className="menu-label" onClick={() => toggleDropdown("import")}>
+            <span>Nhập kho</span>
+            <span className="menu-icon">
+              {openDropdown === "import" ? (
+                <IoChevronUpOutline />
+              ) : (
+                <IoChevronDownOutline />
+              )}
+            </span>
+          </div>
+          {openDropdown === "import" && (
+            <ul className="submenu">
+              <li className="submenu-item">
+                <Link to="/import">Danh sách phiếu nhập</Link>
+              </li>
+              <li className="submenu-item">
+                <Link to="/import-receipts/new">Tạo phiếu nhập mới</Link>
+              </li>
+            </ul>
+          )}
         </li>
-        <li className="menu-item">
-          <Link to="/export">Xuất kho</Link>
+
+        {/* Xuất kho */}
+        <li className="menu-item has-sub">
+          <div className="menu-label" onClick={() => toggleDropdown("export")}>
+            <span>Xuất kho</span>
+            <span className="menu-icon">
+              {openDropdown === "export" ? (
+                <IoChevronUpOutline />
+              ) : (
+                <IoChevronDownOutline />
+              )}
+            </span>
+          </div>
+          {openDropdown === "export" && (
+            <ul className="submenu">
+              <li className="submenu-item">
+                <Link to="/export">Danh sách phiếu xuất</Link>
+              </li>
+              <li className="submenu-item">
+                <Link to="/export-receipts/new">Tạo phiếu xuất mới</Link>
+              </li>
+            </ul>
+          )}
         </li>
+
+        {/* Tồn kho */}
         <li className="menu-item">
           <Link to="/inventory">Tồn kho</Link>
         </li>
@@ -80,10 +133,17 @@ export default function Sidebar({ isAdmin }) {
         {/* Nhân viên */}
         {(isAdmin ?? true) && (
           <li className="menu-item has-sub">
-            <div className="menu-label" onClick={() => toggleDropdown("nhanVien")}>
+            <div
+              className="menu-label"
+              onClick={() => toggleDropdown("nhanVien")}
+            >
               <span>Nhân viên</span>
               <span className="menu-icon">
-                {openDropdown === "nhanVien" ? <IoChevronUpOutline /> : <IoChevronDownOutline />}
+                {openDropdown === "nhanVien" ? (
+                  <IoChevronUpOutline />
+                ) : (
+                  <IoChevronDownOutline />
+                )}
               </span>
             </div>
             {openDropdown === "nhanVien" && (

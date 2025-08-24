@@ -2,48 +2,82 @@
 import React, { useState, useEffect } from "react";
 import "../styles/TransactionHistory.scss";
 import { Link } from "react-router-dom";
+import api from "../services/api";
 
 export default function TransactionHistory() {
   const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // Dữ liệu giả lập
-    const data = [
-      {
-        id: "TX001",
-        type: "Nhập kho",
-        date: "2025-08-07",
-        user: "Nguyễn Văn A",
-        value: 1500000,
-        description: "Nhập hàng đợt 1",
-        note: "Kiểm tra lại số lượng",
-        detailPage: "/import-receipts/1",
-      },
-      {
-        id: "TX002",
-        type: "Xuất kho",
-        date: "2025-08-08",
-        user: "Trần Thị B",
-        value: 2500000,
-        description: "Xuất hàng cho đại lý",
-        note: "",
-        detailPage: "/export-receipts/2",
-      },
-    ];
-    setTransactions(data);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [imports, exports] = await Promise.all([
+          api.getImportReceipts(),
+          api.getExportReceipts(),
+        ]);
+
+        const mapTx = (arr, type) =>
+          arr.map((r) => {
+            const total = (r.details || []).reduce(
+              (sum, item) =>
+                sum + (Number(item.quantity) || 0) * (Number(item.price) || 0),
+              0
+            );
+
+            // Xử lý lấy tên người thực hiện chuẩn
+            const user =
+  typeof r.createdBy === "string"
+    ? r.createdBy
+    : r.createdByUsername ||
+      r.userName ||
+      r.user?.name ||
+      "N/A";
+
+
+            return {
+              id: r.id,
+              code: type === "Nhập kho" ? r.importCode : r.exportCode,
+              type,
+              date: r.createdAt || r.date,
+              user,
+              value: total,
+              description: r.description || "",
+              note: r.note || "",
+              detailPage:
+                type === "Nhập kho"
+                  ? `/import-receipts/${r.id}`
+                  : `/export-receipts/${r.id}`,
+            };
+          });
+
+        const allTx = [
+          ...mapTx(imports, "Nhập kho"),
+          ...mapTx(exports, "Xuất kho"),
+        ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        setTransactions(allTx);
+      } catch (err) {
+        console.error(err);
+        setError("❌ Không tải được lịch sử giao dịch!");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  // Hàm tạo link động theo loại hình
-  const getDetailLink = (tx) => {
-    if (tx.type === "Nhập kho") return `/import-receipt/${tx.id}`;
-    if (tx.type === "Xuất kho") return `/export-receipt/${tx.id}`;
-    return "#";
-  };
+  const formatCurrency = (amount) =>
+    amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+
+  if (loading) return <p>Đang tải dữ liệu...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div className="transaction-history-page">
       <h2>📊 Lịch sử giao dịch</h2>
-      
       <div className="transaction-table-wrapper">
         <table className="transaction-table">
           <thead>
@@ -59,25 +93,26 @@ export default function TransactionHistory() {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((tx) => (
-              <tr key={tx.id}>
-                <td>{tx.id}</td>
-                <td className={tx.type === "Xuất kho" ? "export" : "import"}>
-                  {tx.type}
-                </td>
-                <td>{new Date(tx.date).toLocaleDateString("vi-VN")}</td>
-                <td>{tx.user}</td>
-                <td>{tx.value.toLocaleString()}₫</td>
-                <td>{tx.description}</td>
-                <td>{tx.note || "—"}</td>
-                <td>
-                  <Link to={getDetailLink(tx)} className="detail-link">
-                    Xem chi tiết
-                  </Link>
-                </td>
-              </tr>
-            ))}
-            {transactions.length === 0 && (
+            {transactions.length > 0 ? (
+              transactions.map((tx) => (
+                <tr key={tx.id}>
+                  <td>{tx.code}</td>
+                  <td className={tx.type === "Xuất kho" ? "export" : "import"}>
+                    {tx.type}
+                  </td>
+                  <td>{new Date(tx.date).toLocaleDateString("vi-VN")}</td>
+                  <td>{tx.user}</td>
+                  <td>{formatCurrency(tx.value)}</td>
+                  <td>{tx.description}</td>
+                  <td>{tx.note || "—"}</td>
+                  <td>
+                    <Link to={tx.detailPage} className="detail-link">
+                      Xem chi tiết
+                    </Link>
+                  </td>
+                </tr>
+              ))
+            ) : (
               <tr>
                 <td colSpan="8">Không có dữ liệu giao dịch.</td>
               </tr>

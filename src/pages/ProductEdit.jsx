@@ -29,9 +29,14 @@ export default function ProductEdit() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // Lấy dữ liệu phụ trợ
+  // Load dữ liệu phụ trợ
   useEffect(() => {
-    Promise.all([api.getCategories(), api.getBrands(), api.getUnits(), api.getLocations()])
+    Promise.all([
+      api.getCategories(),
+      api.getBrands(),
+      api.getUnits(),
+      api.getLocations(),
+    ])
       .then(([cats, brs, uns, locs]) => {
         setCategories(cats);
         setBrands(brs);
@@ -41,7 +46,7 @@ export default function ProductEdit() {
       .catch(() => setError("Không load được dữ liệu phụ trợ!"));
   }, []);
 
-  // Lấy thông tin sản phẩm
+  // Load sản phẩm
   useEffect(() => {
     api
       .getProductById(id)
@@ -85,31 +90,28 @@ export default function ProductEdit() {
     setError("");
 
     try {
-      const dataToSend = { ...formData };
-      delete dataToSend.imageFile;
-      delete dataToSend.image_url;
+      const productData = { ...formData };
+      delete productData.image_url;
 
       // Convert số
-      dataToSend.importPrice = Number(dataToSend.importPrice) || 0;
-      dataToSend.stock = Number(dataToSend.stock) || 0;
+      productData.importPrice = Number(productData.importPrice) || 0;
+      productData.stock = Number(productData.stock) || 0;
 
       // Convert ID sang Number hoặc null
       ["categoryId", "brandId", "unitId", "locationId"].forEach((key) => {
-        if (!dataToSend[key]) dataToSend[key] = null;
-        else dataToSend[key] = Number(dataToSend[key]);
+        if (!productData[key]) productData[key] = null;
+        else productData[key] = Number(productData[key]);
       });
 
-      // FE
-const formDataToSend = new FormData();
-formDataToSend.append("product", JSON.stringify(dataToSend)); // remove Blob
-if (formData.imageFile) formDataToSend.append("imageFile", formData.imageFile);
+      console.log("👉 Data gửi BE:", productData);
 
-await api.updateProduct(id, formDataToSend);
+      // Gọi API
+      await api.updateProduct(id, productData);
 
       alert("✅ Cập nhật sản phẩm thành công!");
       navigate("/products");
     } catch (err) {
-      console.error(err);
+      console.error("❌ Lỗi khi cập nhật:", err);
       setError("❌ Cập nhật thất bại. Vui lòng thử lại!");
     } finally {
       setSubmitting(false);
@@ -266,7 +268,12 @@ await api.updateProduct(id, formDataToSend);
                 style={{ marginBottom: "10px", borderRadius: "8px" }}
               />
             )}
-            <input type="file" name="imageFile" accept="image/*" onChange={handleChange} />
+            <input
+              type="file"
+              name="imageFile"
+              accept="image/*"
+              onChange={handleChange}
+            />
           </div>
         </div>
 
