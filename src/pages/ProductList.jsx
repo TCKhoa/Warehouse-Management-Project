@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaCog, FaSortUp, FaSortDown } from "react-icons/fa";
+import Swal from "sweetalert2";
 import api from "../services/api";
 import "../styles/ProductList.scss";
 
@@ -17,8 +18,6 @@ export default function ProductList() {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-  const [confirmDeleteName, setConfirmDeleteName] = useState("");
   const [backendError, setBackendError] = useState("");
 
   const dropdownRef = useRef({});
@@ -64,7 +63,7 @@ export default function ProductList() {
       const matchCategory = !filterCategory || p.categoryName === filterCategory;
       const matchBrand = !filterBrand || p.brandName === filterBrand;
       const matchStock =
-        !filterStock || (filterStock === "in" ? p.stock > 0 : p.stock === 0);
+        !filterStock || (filterStock === "in" ? p.stock > 0 : p.stock === "out" ? p.stock === 0 : true);
       return matchSearch && matchCategory && matchBrand && matchStock;
     });
 
@@ -91,24 +90,38 @@ export default function ProductList() {
     setSortOrder(order);
   };
 
-  // Xử lý xóa sản phẩm
+  // Xử lý xóa sản phẩm bằng SweetAlert
   const handleDeleteClick = (product) => {
-    setConfirmDeleteId(product.id);
-    setConfirmDeleteName(product.name);
-  };
+    Swal.fire({
+      title: `Bạn có chắc muốn xóa sản phẩm "${product.name}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Có, xóa ngay!",
+      cancelButtonText: "Hủy",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.deleteProduct(product.id);
+          setProducts((prev) => prev.filter((p) => p.id !== product.id));
+          setFilteredProducts((prev) => prev.filter((p) => p.id !== product.id));
 
-  const confirmDeleteProduct = async () => {
-    try {
-      await api.deleteProduct(confirmDeleteId);
-      setProducts((prev) => prev.filter((p) => p.id !== confirmDeleteId));
-      setFilteredProducts((prev) => prev.filter((p) => p.id !== confirmDeleteId));
-      setConfirmDeleteId(null);
-      setConfirmDeleteName("");
-      setBackendError("");
-    } catch (err) {
-      console.error("Lỗi khi xóa sản phẩm:", err.response?.data || err.message);
-      setBackendError("❌ Không thể xóa sản phẩm");
-    }
+          Swal.fire({
+            title: "Đã xóa!",
+            text: `Sản phẩm "${product.name}" đã được xóa thành công.`,
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        } catch (err) {
+          console.error("Lỗi khi xóa sản phẩm:", err.response?.data || err.message);
+          Swal.fire({
+            title: "Lỗi!",
+            text: "Không thể xóa sản phẩm. Vui lòng thử lại.",
+            icon: "error",
+          });
+        }
+      }
+    });
   };
 
   // Chọn tất cả
@@ -130,39 +143,34 @@ export default function ProductList() {
       {backendError && <p className="error">{backendError}</p>}
 
       <div className="filters">
-  {/* Lọc danh mục */}
-  <select onChange={(e) => setFilterCategory(e.target.value)}>
-    <option value="">Tất cả danh mục</option>
-    {[...new Set(products.map(p => p.categoryName))].map((cat, i) => (
-      <option key={i} value={cat}>{cat}</option>
-    ))}
-  </select>
+        <select onChange={(e) => setFilterCategory(e.target.value)}>
+          <option value="">Tất cả danh mục</option>
+          {[...new Set(products.map((p) => p.categoryName))].map((cat, i) => (
+            <option key={i} value={cat}>{cat}</option>
+          ))}
+        </select>
 
-  {/* Lọc thương hiệu */}
-  <select onChange={(e) => setFilterBrand(e.target.value)}>
-    <option value="">Tất cả thương hiệu</option>
-    {[...new Set(products.map(p => p.brandName))].map((brand, i) => (
-      <option key={i} value={brand}>{brand}</option>
-    ))}
-  </select>
+        <select onChange={(e) => setFilterBrand(e.target.value)}>
+          <option value="">Tất cả thương hiệu</option>
+          {[...new Set(products.map((p) => p.brandName))].map((brand, i) => (
+            <option key={i} value={brand}>{brand}</option>
+          ))}
+        </select>
 
-  {/* Lọc trạng thái tồn kho */}
-  <select onChange={(e) => setFilterStock(e.target.value)}>
-    <option value="">Tất cả trạng thái</option>
-    <option value="in">Còn hàng</option>
-    <option value="out">Hết hàng</option>
-  </select>
+        <select onChange={(e) => setFilterStock(e.target.value)}>
+          <option value="">Tất cả trạng thái</option>
+          <option value="in">Còn hàng</option>
+          <option value="out">Hết hàng</option>
+        </select>
 
-  {/* Tìm kiếm theo tên hoặc mã */}
-  <input
-    type="text"
-    placeholder="Tìm tên hoặc mã SP..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    className="search-input"
-  />
-</div>
-
+        <input
+          type="text"
+          placeholder="Tìm tên hoặc mã SP..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+      </div>
 
       <table className="product-table">
         <thead>
@@ -209,7 +217,6 @@ export default function ProductList() {
               </td>
               <td>
                 <img src={p.imageUrl || "/no-image.png"} alt={p.name} width="50" />
-
               </td>
               <td>{p.name}</td>
               <td>{p.productCode}</td>
@@ -230,7 +237,7 @@ export default function ProductList() {
                   />
                   {activeDropdown === p.id && (
                     <div className="dropdown-menu">
-                      <div onClick={() => navigate(`/products/${p.id}/edit`)}>Sửa</div>
+                      <div onClick={() => navigate(`/products/${p.id}`)}>Chi tiết</div>
                       <div onClick={() => handleDeleteClick(p)}>Xóa</div>
                     </div>
                   )}
@@ -240,24 +247,6 @@ export default function ProductList() {
           ))}
         </tbody>
       </table>
-
-      {/* Modal xác nhận xóa */}
-      {confirmDeleteId !== null && (
-        <div className="confirm-overlay">
-          <div className="confirm-modal">
-            <p>
-              Bạn có chắc chắn muốn xóa sản phẩm{" "}
-              <strong>{confirmDeleteName}</strong> không?
-            </p>
-            <div className="confirm-buttons">
-              <button onClick={() => setConfirmDeleteId(null)}>Hủy</button>
-              <button onClick={confirmDeleteProduct} className="danger">
-                Xác nhận
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

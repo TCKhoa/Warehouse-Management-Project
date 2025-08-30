@@ -1,0 +1,52 @@
+.map-editor {
+  .toolbar {
+    margin-bottom: 12px;
+    button {
+      margin-right: 8px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #3b82f6;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      &:hover {
+        background: #2563eb;
+      }
+    }
+  }
+
+  .map-canvas {
+    position: relative;
+    width: 85%;
+    max-width: 900px;
+    height: 600px;
+    border: 1px solid #ddd;
+    overflow: hidden;
+    border-radius: 8px;
+
+    .map-background {
+      width: 80%;
+      height: 80%;
+      object-fit: cover;
+    }
+
+    .zone {
+      background: rgba(59, 130, 246, 0.3);
+      border: 2px solid #2563eb;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: move;
+
+      .zone-label {
+        font-weight: bold;
+        color: #111;
+        background: rgba(255, 255, 255, 0.7);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+    }
+  }
+}

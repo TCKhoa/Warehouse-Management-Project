@@ -1,0 +1,33 @@
+.map-container {
+  position: relative;
+  display: block;
+
+  .map-image {
+    display: block;
+    max-width: 70%;
+    margin: 0 auto;
+    border-radius: 8px;
+  }
+
+  .map-zone {
+   position: absolute;
+    width: 20px;
+    height: 20px;
+    background: red;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .zone-label {
+      color: #fff;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    &:hover {
+      background-color: darkred; // hover chuyển đỏ đậm
+    }
+  }
+}

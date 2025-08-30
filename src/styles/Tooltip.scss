@@ -1,0 +1,17 @@
+/* Tooltip.scss */
+.tooltip-content {
+  background-color: #111827;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -100%) scale(0.95);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.tooltip-content.show {
+  opacity: 1;
+  transform: translate(-50%, -100%) scale(1);
+}

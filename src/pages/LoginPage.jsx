@@ -16,7 +16,6 @@ const LoginPage = () => {
   const { handleLogin } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Nếu đã login -> redirect về trang staff
   useEffect(() => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (token) navigate("/staff", { replace: true });
@@ -34,8 +33,19 @@ const LoginPage = () => {
         throw new Error("Dữ liệu phản hồi không hợp lệ");
       }
 
-      // Lưu token qua AuthContext (tự xử lý local/sessionStorage)
+      // Lưu token
       handleLogin(data.token, rememberMe);
+
+      // Lưu thông tin user
+      if (rememberMe) {
+        localStorage.setItem("role", data.role);
+        localStorage.setItem("email", data.email);
+        localStorage.setItem("username", data.username);
+      } else {
+        sessionStorage.setItem("role", data.role);
+        sessionStorage.setItem("email", data.email);
+        sessionStorage.setItem("username", data.username);
+      }
 
       navigate("/", { replace: true });
     } catch (err) {

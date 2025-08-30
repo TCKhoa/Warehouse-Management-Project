@@ -132,6 +132,10 @@ const api = {
     const response = await apiClient.delete(`/products/${id}`);
     return response.data;
   },
+  getProductsByLocation: async (locationId) => {
+    const response = await apiClient.get(`/products/location/${locationId}`);
+    return response.data;
+  },
 
   // ---------- CATEGORIES ----------
   getCategories: async () => {
@@ -222,7 +226,6 @@ const api = {
   },
 
   // ---------- IMPORT RECEIPTS ----------
-   // ---------- IMPORT RECEIPTS ----------
   getImportReceipts: async () => {
     const response = await apiClient.get("/import-receipts");
     return response.data;
@@ -248,44 +251,76 @@ const api = {
     return response.data;
   },
 
-
   // ---------- EXPORT RECEIPTS ----------
-getExportReceipts: async () => {
-  const response = await apiClient.get("/export-receipts");
-  return response.data;
-},
-
-getExportReceiptById: async (id) => {
-  const response = await apiClient.get(`/export-receipts/${id}`);
-  // Trả về đúng DTO từ BE
-  return response.data;
-},
-
-createExportReceipt: async (data) => {
-  const response = await apiClient.post("/export-receipts", data, {
-    headers: { "Content-Type": "application/json" },
-  });
-  return response.data;
-},
-
-updateExportReceipt: async (id, data) => {
-  const response = await apiClient.put(`/export-receipts/${id}`, data, {
-    headers: { "Content-Type": "application/json" },
-  });
-  return response.data;
-},
-
-deleteExportReceipt: async (id) => {
-  const response = await apiClient.delete(`/export-receipts/${id}`);
-  return response.data;
-},
-
-
-  // ---------- HISTORY LOGS ----------
-  getHistoryLogs: async () => {
-    const response = await apiClient.get("/history-logs");
+  getExportReceipts: async () => {
+    const response = await apiClient.get("/export-receipts");
     return response.data;
   },
+  getExportReceiptById: async (id) => {
+    const response = await apiClient.get(`/export-receipts/${id}`);
+    return response.data;
+  },
+  createExportReceipt: async (data) => {
+    const response = await apiClient.post("/export-receipts", data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  updateExportReceipt: async (id, data) => {
+    const response = await apiClient.put(`/export-receipts/${id}`, data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  deleteExportReceipt: async (id) => {
+    const response = await apiClient.delete(`/export-receipts/${id}`);
+    return response.data;
+  },
+
+  // ---------- HISTORY LOGS ----------
+  // ---------- HISTORY LOGS ----------
+getHistoryLogs: async () => {
+  const response = await apiClient.get("/history-logs");
+  return response.data.map((l) => ({ ...l, isRead: Boolean(l.isRead) }));
+},
+getUnreadHistoryLogs: async () => {
+  const response = await apiClient.get("/history-logs/unread");
+  return response.data.map((l) => ({ ...l, isRead: Boolean(l.isRead) }));
+},
+getHistoryLogById: async (id) => {
+  const res = await apiClient.get(`/history-logs/${id}`);
+  return { ...res.data, isRead: Boolean(res.data.isRead) };
+},
+createHistoryLog: async (data) => {
+  const res = await apiClient.post("/history-logs", data, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return { ...res.data, isRead: Boolean(res.data.isRead) };
+},
+deleteHistoryLog: async (id) => {
+  const res = await apiClient.delete(`/history-logs/${id}`);
+  return res.data;
+},
+markHistoryLogAsRead: async (id) => {
+  const res = await apiClient.patch(`/history-logs/${id}/read`, null, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.data;
+},
+
+markHistoryLogAsUnread: async (id) => {
+  const res = await apiClient.patch(`/history-logs/${id}/unread`, null, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.data;
+},
+
+// ---------- SSE: subscribe history logs ----------
+  subscribeHistoryLogs: () => {
+    // Trả về EventSource để Sidebar hoặc component khác dùng
+    return new EventSource(`${API_BASE_URL}/api/history-logs/stream`);
+  },
+
 };
 
 export default api;

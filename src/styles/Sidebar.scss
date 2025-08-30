@@ -1,36 +1,54 @@
+/* Sidebar.scss */
 .sidebar {
   background-color: #0f172a;
   color: white;
   width: 250px;
-  // min-height: 100vh;
-  padding: 1rem;
-
-  .sidebar-logo {
+  min-height: 100vh; // đảm bảo dài theo nội dung trang
   display: flex;
-  justify-content: center;
-  align-items: center;
-  
+  flex-direction: column;
+  padding: 1rem;
+  box-sizing: border-box;
 
-  a {
-    display: inline-block;
-    text-decoration: none;
-  }
+  /* ---- Logo ---- */
+  .sidebar-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
 
-  img.logo-image {
-    width: 15vw; // chỉnh kích thước phù hợp
-    height: auto;
-    object-fit: contain;
-    transition: transform 0.3s ease;
+    a {
+      display: inline-block;
+      text-decoration: none;
+    }
 
-    &:hover {
-      transform: scale(1.05);
+    img.logo-image {
+      width: 15vw;
+      height: auto;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
     }
   }
-}
 
+  /* ---- Menu ---- */
   .sidebar-menu {
     list-style: none;
     padding: 0;
+    flex: 1; // chiếm phần còn lại giữa logo và user
+    overflow-y: auto; // scroll khi menu dài
+    margin-bottom: 1rem;
+
+    // Scrollbar đẹp
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
 
     .menu-item {
       padding: 0.75rem 1rem;
@@ -42,7 +60,8 @@
         color: inherit;
         text-decoration: none;
         display: block;
-        cursor: pointer; // Thêm dòng này để hiện con trỏ pointer
+        cursor: pointer;
+        position: relative;
       }
 
       &:hover {
@@ -58,10 +77,17 @@
 
         .menu-icon {
           font-size: 18px;
-          font-weight: normal;
           display: flex;
           align-items: center;
         }
+      }
+
+      /* Active menu chỉ underline text */
+      &.active > a {
+        display: inline-block;
+        border-bottom: 2px solid #ffffff;
+        font-weight: 600;
+        padding-bottom: 5px;
       }
     }
 
@@ -78,17 +104,159 @@
         a {
           color: inherit;
           text-decoration: none;
-          cursor: pointer; // Thêm dòng này cho link con
+          cursor: pointer;
+          display: block;
+          transition: 0.2s;
         }
 
-        &:hover {
+        &:hover a {
           color: white;
+        }
+
+        /* Active submenu chỉ underline */
+        &.active > a {
+          border-bottom: 2px solid #ffffff;
+          padding-bottom: 5px;
+          display: inline-block;
+          font-weight: 600;
+          color: #fff;
         }
       }
     }
+  }
 
-    .active {
-      background-color: #2563eb;
+  /* ---- User Info ---- */
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #1e293b;
+    padding: 10px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.2s ease;
+    justify-content: space-between;
+    margin-top: auto; // luôn ở dưới cùng
+
+    &:hover {
+      background: #374151;
+      transform: translateY(-2px);
+    }
+
+    .user-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #2563eb;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+
+      .user-name {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
+        line-height: 1.2;
+      }
+
+      .user-role {
+        font-size: 12px;
+        color: #9ca3af;
+        margin: 0;
+      }
     }
   }
+}
+
+/* ---- User Popup ---- */
+.user-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.user-popup {
+  background: #fff;
+  color: #111827;
+  padding: 24px;
+  border-radius: 16px;
+  width: 340px;
+  max-width: 90%;
+  text-align: center;
+  animation: slideUp 0.3s ease;
+
+  .popup-avatar {
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 10px auto 14px;
+    border: 3px solid #2563eb;
+  }
+
+  h4 {
+    margin: 8px 0 4px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  p {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 20px;
+  }
+
+  .logout-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.notification-badge {
+  display: inline-block;
+  margin-left: 5px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 9999px;
 }

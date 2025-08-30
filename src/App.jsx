@@ -22,6 +22,8 @@ import CreateExportReceipt from "./pages/CreateExportReceipt";
 import ImportReceiptDetail from "./pages/ImportReceiptDetail";
 import CreateImportReceipt from "./pages/CreateImportReceipt";
 import StaffDetail from "./pages/StaffDetail";
+import ProductDetail from "./pages/ProductDetail";
+import HistoryLogsPage from "./pages/HistoryLogsPage";
 
 import "./styles/App.scss";
 
@@ -78,6 +80,7 @@ function App() {
               <Route path="/products/category" element={<ProductCategory />} />
               <Route path="/products/brand" element={<ProductBrand />} />
               <Route path="/products/:id/edit" element={<ProductEdit />} />
+              <Route path="/products/:id" element={<ProductDetail />} />
               <Route path="/import" element={<ImportWarehouse />} />
               <Route path="/import-receipts/new" element={<CreateImportReceipt />} />
               <Route path="/import-receipts/:id" element={<ImportReceiptDetail />} />
@@ -90,6 +93,7 @@ function App() {
               <Route path="/staff/:id" element={<StaffDetail />} />
               <Route path="/revenue" element={<Revenue />} />
               <Route path="/statistics" element={<TransactionHistory />} />
+              <Route path="/history-logs" element={<HistoryLogsPage />} />
             </Route>
           </Route>
         </Routes>
