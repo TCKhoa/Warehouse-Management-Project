@@ -8,6 +8,42 @@
     font-size: 1.8rem;
     margin-bottom: 1rem;
   }
+  
+  .top-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; // khoảng cách giữa pagination-control và filters
+    margin-bottom: 20px;
+
+    .pagination-control {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 10px;
+
+      label {
+        font-size: 14px;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        select {
+          padding: 6px 10px;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          background-color: #fff;
+          cursor: pointer;
+
+          &:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+          }
+        }
+      }
+    }
+  }
 
   .filters {
     display: flex;
@@ -62,7 +98,7 @@
     }
 
     th {
-      background-color: #f0f0f0;
+      background-color: #DBEAFE;
       user-select: none;
       cursor: pointer;
 
@@ -81,7 +117,7 @@
     tr:hover {
       background-color: #f9f9f9;
     }
-
+    
     img {
       border-radius: 4px;
     }

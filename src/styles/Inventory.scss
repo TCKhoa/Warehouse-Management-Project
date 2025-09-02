@@ -9,13 +9,7 @@
     font-size: 26px;
     font-weight: 600;
     color: #1f2937;
-    margin-bottom: 4px;
-  }
-
-  p {
-    font-size: 16px;
-    color: #6b7280;
-    margin-bottom: 20px;
+    margin-bottom: 5px; // 👈 tăng khoảng cách dưới h2
   }
 
   .inventory-header {
@@ -23,7 +17,7 @@
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
-    margin-bottom: 16px;
+    margin-bottom: 20px; // 👈 khoảng cách với .filters
 
     .right {
       button {
@@ -43,12 +37,53 @@
       }
     }
   }
+    .top-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; // khoảng cách giữa pagination-control và filters
+    margin-bottom: 20px;
+
+    .pagination-control {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 10px;
+
+      label {
+        font-size: 14px;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        select {
+          padding: 6px 10px;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          background-color: #fff;
+          cursor: pointer;
+
+          &:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+          }
+        }
+      }
+    }
+  }
 
   .filters {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
     gap: 12px;
     margin-bottom: 20px;
+    
+    .filter-left {
+      display: flex;
+      gap: 15px;
+    }
 
     .search-box,
     .category-select {
@@ -78,7 +113,9 @@
     overflow: hidden;
 
     thead {
-      background-color: #e5e7eb;
+      tr {
+        background-color: #DBEAFE;
+      }
 
       th {
         text-align: center;
@@ -134,3 +171,79 @@
     }
   }
 }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+
+    button {
+      padding: 6px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background-color: #ffffff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: #f3f4f6;
+      }
+
+      &.active {
+        background-color: #3b82f6;
+        color: #ffffff;
+        border-color: #3b82f6;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  // Action buttons (edit/delete)
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+
+    button {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &.edit {
+        background-color: #fbbf24; // vàng
+        color: #fff;
+
+        &:hover {
+          background-color: #f59e0b;
+        }
+      }
+
+      &.delete {
+        background-color: #ef4444; // đỏ
+        color: #fff;
+
+        &:hover {
+          background-color: #dc2626;
+        }
+      }
+    }
+  }
+
+  // Empty state (không có dữ liệu)
+  .empty-state {
+    text-align: center;
+    padding: 40px 0;
+    font-size: 15px;
+    color: #6b7280;
+    font-style: italic;
+  }

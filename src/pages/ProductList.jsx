@@ -1,7 +1,7 @@
 // src/pages/ProductList.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaCog, FaSortUp, FaSortDown } from "react-icons/fa";
+import { FaCog } from "react-icons/fa";
 import Swal from "sweetalert2";
 import api from "../services/api";
 import "../styles/ProductList.scss";
@@ -16,19 +16,20 @@ export default function ProductList() {
   const [filterStock, setFilterStock] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [selectAll, setSelectAll] = useState(false);
-  const [selectedIds, setSelectedIds] = useState([]);
   const [backendError, setBackendError] = useState("");
 
   const dropdownRef = useRef({});
   const navigate = useNavigate();
+
+  // phân trang
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Lấy sản phẩm từ backend
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const data = await api.getProducts();
-        console.log("👉 Products từ backend:", data);
         setProducts(data);
         setFilteredProducts(data);
       } catch (err) {
@@ -63,7 +64,12 @@ export default function ProductList() {
       const matchCategory = !filterCategory || p.categoryName === filterCategory;
       const matchBrand = !filterBrand || p.brandName === filterBrand;
       const matchStock =
-        !filterStock || (filterStock === "in" ? p.stock > 0 : p.stock === "out" ? p.stock === 0 : true);
+        !filterStock ||
+        (filterStock === "in"
+          ? p.stock > 0
+          : filterStock === "out"
+          ? p.stock === 0
+          : true);
       return matchSearch && matchCategory && matchBrand && matchStock;
     });
 
@@ -71,26 +77,29 @@ export default function ProductList() {
     result.sort((a, b) => {
       let aVal = a[sortField];
       let bVal = b[sortField];
-      if (sortField === "updatedAt") {
-        aVal = new Date(aVal);
-        bVal = new Date(bVal);
-      }
       if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
       if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
       return 0;
     });
 
     setFilteredProducts(result);
+    setCurrentPage(1); // reset về trang đầu khi filter thay đổi
   }, [products, searchTerm, filterCategory, filterBrand, filterStock, sortField, sortOrder]);
 
-  // Thay đổi sắp xếp
+  // Xử lý sắp xếp
   const handleSort = (field) => {
     const order = sortField === field && sortOrder === "asc" ? "desc" : "asc";
     setSortField(field);
     setSortOrder(order);
   };
 
-  // Xử lý xóa sản phẩm bằng SweetAlert
+  // Export icon sort
+  const getSortIcon = (field) => {
+    if (sortField !== field) return "⇅";
+    return sortOrder === "asc" ? "↑" : "↓";
+  };
+
+  // Xử lý xóa sản phẩm
   const handleDeleteClick = (product) => {
     Swal.fire({
       title: `Bạn có chắc muốn xóa sản phẩm "${product.name}"?`,
@@ -124,36 +133,53 @@ export default function ProductList() {
     });
   };
 
-  // Chọn tất cả
-  const handleSelectAll = (e) => {
-    const checked = e.target.checked;
-    setSelectAll(checked);
-    setSelectedIds(checked ? filteredProducts.map((p) => p.id) : []);
-  };
-
-  const handleSelectRow = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
+  // Phân trang
+  const totalPages = Math.ceil(filteredProducts.length / rowsPerPage);
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const currentProducts = filteredProducts.slice(start, end);
 
   return (
     <div className="product-list-page">
       <h2>📦 Danh sách sản phẩm</h2>
       {backendError && <p className="error">{backendError}</p>}
+      {/* chọn số sản phẩm / trang đặt dưới bảng */}
+      <div className="top-controls">
+      <div className="pagination-control">
+        <label>
+          Hiển thị
+          <select
+            value={rowsPerPage}
+            onChange={(e) => {
+              setRowsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+          </select>
+          sản phẩm mỗi trang
+        </label>
+      </div>
 
+      {/* bộ lọc */}
       <div className="filters">
         <select onChange={(e) => setFilterCategory(e.target.value)}>
           <option value="">Tất cả danh mục</option>
           {[...new Set(products.map((p) => p.categoryName))].map((cat, i) => (
-            <option key={i} value={cat}>{cat}</option>
+            <option key={i} value={cat}>
+              {cat}
+            </option>
           ))}
         </select>
 
         <select onChange={(e) => setFilterBrand(e.target.value)}>
           <option value="">Tất cả thương hiệu</option>
           {[...new Set(products.map((p) => p.brandName))].map((brand, i) => (
-            <option key={i} value={brand}>{brand}</option>
+            <option key={i} value={brand}>
+              {brand}
+            </option>
           ))}
         </select>
 
@@ -165,56 +191,41 @@ export default function ProductList() {
 
         <input
           type="text"
-          placeholder="Tìm tên hoặc mã SP..."
+          placeholder="🔍 Tìm tên hoặc mã SP..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
         />
       </div>
+      </div>
 
+      {/* bảng sản phẩm */}
       <table className="product-table">
         <thead>
           <tr>
-            <th>
-              <input type="checkbox" checked={selectAll} onChange={handleSelectAll} />
-            </th>
             <th>Ảnh</th>
             <th onClick={() => handleSort("name")}>
-              Tên
-              <FaSortUp className={sortField === "name" && sortOrder === "asc" ? "active" : ""} />
-              <FaSortDown className={sortField === "name" && sortOrder === "desc" ? "active" : ""} />
+              Tên {getSortIcon("name")}
             </th>
             <th onClick={() => handleSort("productCode")}>
-              Mã SP
-              <FaSortUp className={sortField === "productCode" && sortOrder === "asc" ? "active" : ""} />
-              <FaSortDown className={sortField === "productCode" && sortOrder === "desc" ? "active" : ""} />
+              Mã SP {getSortIcon("productCode")}
             </th>
             <th>Tồn kho</th>
             <th onClick={() => handleSort("importPrice")}>
-              Giá
-              <FaSortUp className={sortField === "importPrice" && sortOrder === "asc" ? "active" : ""} />
-              <FaSortDown className={sortField === "importPrice" && sortOrder === "desc" ? "active" : ""} />
+              Giá {getSortIcon("importPrice")}
             </th>
-            <th>Danh mục</th>
-            <th>Thương hiệu</th>
-            <th onClick={() => handleSort("updatedAt")}>
-              Ngày cập nhật
-              <FaSortUp className={sortField === "updatedAt" && sortOrder === "asc" ? "active" : ""} />
-              <FaSortDown className={sortField === "updatedAt" && sortOrder === "desc" ? "active" : ""} />
+            <th onClick={() => handleSort("categoryName")}>
+              Danh mục {getSortIcon("categoryName")}
+            </th>
+            <th onClick={() => handleSort("brandName")}>
+              Thương hiệu {getSortIcon("brandName")}
             </th>
             <th>Chi tiết</th>
           </tr>
         </thead>
         <tbody>
-          {filteredProducts.map((p) => (
+          {currentProducts.map((p) => (
             <tr key={p.id}>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedIds.includes(p.id)}
-                  onChange={() => handleSelectRow(p.id)}
-                />
-              </td>
               <td>
                 <img src={p.imageUrl || "/no-image.png"} alt={p.name} width="50" />
               </td>
@@ -226,7 +237,6 @@ export default function ProductList() {
               <td>{p.importPrice.toLocaleString()} ₫</td>
               <td>{p.categoryName}</td>
               <td>{p.brandName}</td>
-              <td>{new Date(p.updatedAt).toLocaleString()}</td>
               <td className="action-cell">
                 <div className="dropdown" ref={(el) => (dropdownRef.current[p.id] = el)}>
                   <FaCog
@@ -247,6 +257,35 @@ export default function ProductList() {
           ))}
         </tbody>
       </table>
+
+      
+
+      {/* phân trang */}
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            « Trước
+          </button>
+          {[...Array(totalPages)].map((_, idx) => (
+            <button
+              key={idx + 1}
+              onClick={() => setCurrentPage(idx + 1)}
+              className={currentPage === idx + 1 ? "active" : ""}
+            >
+              {idx + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Tiếp »
+          </button>
+        </div>
+      )}
     </div>
   );
 }

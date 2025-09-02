@@ -12,16 +12,13 @@
     color: #111;
   }
 
-  p {
-    margin-bottom: 16px;
-    color: #555;
-  }
-
   .staff-filters {
     margin-bottom: 12px;
+    display: flex;
+    justify-self: flex-end;
 
     .search-input {
-      width: 100%;
+      width: 280px;
       max-width: 300px;
       padding: 8px 12px;
       border: 1px solid #ccc;
@@ -42,7 +39,12 @@
     background-color: #ffffff; /* nền table trắng */
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.08); /* bóng nhẹ */
 
-    th, td {
+    thead tr {
+      background-color: #e5f3fb; /* 🌟 nền của hàng tiêu đề */
+    }
+
+    th,
+    td {
       padding: 10px 12px;
       text-align: left;
       border-bottom: 1px solid #eee;
@@ -52,7 +54,6 @@
 
     th {
       cursor: pointer;
-      background-color: #f9fafb; /* nền nhẹ cho header */
       position: relative;
 
       svg {

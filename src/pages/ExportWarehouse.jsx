@@ -7,8 +7,8 @@ import api from '../services/api';
 
 const ExportWarehouse = () => {
   const [exportReceipts, setExportReceipts] = useState([]);
-  const [rowsPerPage, setRowsPerPage] = useState(25);
-  const [currentPages, setCurrentPages] = useState({}); // lưu trang hiện tại của từng tháng
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
   const role = (localStorage.getItem('role') || 'staff').toLowerCase();
 
@@ -30,7 +30,7 @@ const ExportWarehouse = () => {
   const formatCurrency = (amount) =>
     Number(amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 
-  // Xử lý xóa phiếu xuất với confirm SweetAlert2
+  // Xử lý xóa phiếu xuất
   const handleDeleteClick = (receipt) => {
     Swal.fire({
       title: 'Bạn có chắc muốn xóa?',
@@ -61,8 +61,14 @@ const ExportWarehouse = () => {
     );
   };
 
-  // Nhóm phiếu theo tháng
-  const groupedReceipts = exportReceipts.reduce((groups, receipt) => {
+  // --- PHÂN TRANG TOÀN BỘ ---
+  const totalPages = Math.ceil(exportReceipts.length / rowsPerPage);
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const currentReceipts = exportReceipts.slice(start, end);
+
+  // Nhóm theo tháng nhưng chỉ lấy dữ liệu của currentReceipts
+  const groupedReceipts = currentReceipts.reduce((groups, receipt) => {
     const date = new Date(receipt.createdAt);
     const monthKey = date.toLocaleString('vi-VN', { month: 'long', year: 'numeric' });
     if (!groups[monthKey]) groups[monthKey] = [];
@@ -70,14 +76,9 @@ const ExportWarehouse = () => {
     return groups;
   }, {});
 
-  // Phân trang cho từng tháng
-  const handlePageChange = (month, page) => {
-    setCurrentPages({ ...currentPages, [month]: page });
-  };
-
   const handleRowsPerPageChange = (e) => {
     setRowsPerPage(Number(e.target.value));
-    setCurrentPages({}); // reset trang về 1
+    setCurrentPage(1); // reset về trang đầu
   };
 
   return (
@@ -93,112 +94,105 @@ const ExportWarehouse = () => {
         <label>
           Hiển thị
           <select value={rowsPerPage} onChange={handleRowsPerPageChange}>
-            <option value={25}>25</option>
-            <option value={30}>30</option>
-            <option value={50}>50</option>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
           </select>
           giao dịch mỗi trang
         </label>
       </div>
 
-      {Object.keys(groupedReceipts).map((month) => {
-        const receipts = groupedReceipts[month];
-        const totalPages = Math.ceil(receipts.length / rowsPerPage);
-        const currentPage = currentPages[month] || 1;
-        const start = (currentPage - 1) * rowsPerPage;
-        const end = start + rowsPerPage;
-        const currentReceipts = receipts.slice(start, end);
+      {/* Hiển thị grouped receipts theo tháng */}
+      {Object.keys(groupedReceipts).map((month) => (
+        <div key={month} className="month-group">
+          <h3 className="month-title">{month}</h3>
+          <table className="receipts-table">
+            <thead>
+              <tr>
+                <th>Mã phiếu</th>
+                <th>Thời gian</th>
+                <th>Người tạo</th>
+                <th>Tổng tiền</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groupedReceipts[month].map((receipt) => {
+                const total = calculateTotal(receipt);
+                const createdAt = new Date(receipt.createdAt);
+                const now = new Date();
+                let canDelete = false;
+                let tooltip = '';
 
-        return (
-          <div key={month} className="month-group">
-            <h3 className="month-title">{month}</h3>
-            <table className="receipts-table">
-              <thead>
-                <tr>
-                  <th>Mã phiếu</th>
-                  <th>Thời gian</th>
-                  <th>Người tạo</th>
-                  <th>Tổng tiền</th>
-                  <th>Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentReceipts.map((receipt) => {
-                  const total = calculateTotal(receipt);
-                  const createdAt = new Date(receipt.createdAt);
-                  const now = new Date();
-                  let canDelete = false;
-                  let tooltip = '';
+                if (role === 'admin') {
+                  canDelete = true;
+                } else if (role === 'manager') {
+                  const oneWeekLater = new Date(createdAt);
+                  oneWeekLater.setDate(oneWeekLater.getDate() + 7);
+                  canDelete = now <= oneWeekLater;
+                  if (!canDelete) tooltip = 'Quản lý chỉ được xóa trong 7 ngày';
+                } else if (role === 'staff') {
+                  const oneDayLater = new Date(createdAt);
+                  oneDayLater.setDate(oneDayLater.getDate() + 1);
+                  canDelete = now <= oneDayLater;
+                  if (!canDelete) tooltip = 'Nhân viên chỉ được xóa trong 24h';
+                } else {
+                  tooltip = 'Bạn không có quyền xóa';
+                }
 
-                  if (role === 'admin') {
-                    canDelete = true;
-                  } else if (role === 'manager') {
-                    const oneWeekLater = new Date(createdAt);
-                    oneWeekLater.setDate(oneWeekLater.getDate() + 7);
-                    canDelete = now <= oneWeekLater;
-                    if (!canDelete) tooltip = 'Quản lý chỉ được xóa trong 7 ngày';
-                  } else if (role === 'staff') {
-                    const oneDayLater = new Date(createdAt);
-                    oneDayLater.setDate(oneDayLater.getDate() + 1);
-                    canDelete = now <= oneDayLater;
-                    if (!canDelete) tooltip = 'Nhân viên chỉ được xóa trong 24h';
-                  } else {
-                    tooltip = 'Bạn không có quyền xóa';
-                  }
+                return (
+                  <tr key={receipt.id}>
+                    <td>{receipt.exportCode}</td>
+                    <td>{createdAt.toLocaleDateString('vi-VN')}</td>
+                    <td>{receipt.createdByUsername || 'Không xác định'}</td>
+                    <td>{formatCurrency(total)}</td>
+                    <td>
+                      <button onClick={() => navigate(`/export-receipts/${receipt.id}`)}>
+                        Xem chi tiết
+                      </button>
+                      <button
+                        className="danger"
+                        onClick={() => handleDeleteClick(receipt)}
+                        disabled={!canDelete}
+                        title={!canDelete ? tooltip : ''}
+                      >
+                        Xóa
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ))}
 
-                  return (
-                    <tr key={receipt.id}>
-                      <td>{receipt.exportCode}</td>
-                      <td>{createdAt.toLocaleDateString('vi-VN')}</td>
-                      <td>{receipt.createdByUsername || 'Không xác định'}</td>
-                      <td>{formatCurrency(total)}</td>
-                      <td>
-                        <button onClick={() => navigate(`/export-receipts/${receipt.id}`)}>
-                          Xem chi tiết
-                        </button>
-                        <button
-                          className="danger"
-                          onClick={() => handleDeleteClick(receipt)}
-                          disabled={!canDelete}
-                          title={!canDelete ? tooltip : ''}
-                        >
-                          Xóa
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-
-            {totalPages > 1 && (
-              <div className="pagination">
-                <button
-                  onClick={() => handlePageChange(month, currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  « Trước
-                </button>
-                {[...Array(totalPages)].map((_, idx) => (
-                  <button
-                    key={idx + 1}
-                    onClick={() => handlePageChange(month, idx + 1)}
-                    className={currentPage === idx + 1 ? 'active' : ''}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
-                <button
-                  onClick={() => handlePageChange(month, currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  Tiếp »
-                </button>
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {/* Pagination chung cho toàn bộ */}
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            « Trước
+          </button>
+          {[...Array(totalPages)].map((_, idx) => (
+            <button
+              key={idx + 1}
+              onClick={() => setCurrentPage(idx + 1)}
+              className={currentPage === idx + 1 ? 'active' : ''}
+            >
+              {idx + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Tiếp »
+          </button>
+        </div>
+      )}
     </div>
   );
 };

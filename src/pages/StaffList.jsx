@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { FaSortUp, FaSortDown } from 'react-icons/fa';
 import '../styles/StaffList.scss';
 
 export default function StaffList() {
@@ -72,6 +71,12 @@ export default function StaffList() {
     setSortOrder(order);
   };
 
+  // 👉 Hàm icon giống Inventory.jsx
+  const getSortIcon = (field) => {
+    if (sortField !== field) return '⇅';
+    return sortOrder === 'asc' ? '↑' : '↓';
+  };
+
   const handleDetailClick = (id) => {
     navigate(`/staff/${id}`);
   };
@@ -82,13 +87,12 @@ export default function StaffList() {
   return (
     <div className="staff-list-page">
       <h2>👥 Danh sách nhân viên</h2>
-      <p>Quản lý danh sách nhân viên làm việc trong kho.</p>
-
+      
       {/* Search input */}
       <div className="staff-filters">
         <input
           type="text"
-          placeholder="Tìm theo tên, mã NV hoặc email..."
+          placeholder="🔍 Tìm theo tên, mã NV hoặc email..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -100,25 +104,17 @@ export default function StaffList() {
           <tr>
             <th>STT</th>
             <th onClick={() => handleSort('staffCode')}>
-              Mã NV
-              <FaSortUp className={sortField === 'staffCode' && sortOrder === 'asc' ? 'active' : ''} />
-              <FaSortDown className={sortField === 'staffCode' && sortOrder === 'desc' ? 'active' : ''} />
+              Mã NV {getSortIcon('staffCode')}
             </th>
             <th onClick={() => handleSort('username')}>
-              Tên người dùng
-              <FaSortUp className={sortField === 'username' && sortOrder === 'asc' ? 'active' : ''} />
-              <FaSortDown className={sortField === 'username' && sortOrder === 'desc' ? 'active' : ''} />
+              Tên người dùng {getSortIcon('username')}
             </th>
             <th>Email</th>
             <th onClick={() => handleSort('role')}>
-              Vai trò
-              <FaSortUp className={sortField === 'role' && sortOrder === 'asc' ? 'active' : ''} />
-              <FaSortDown className={sortField === 'role' && sortOrder === 'desc' ? 'active' : ''} />
+              Vai trò {getSortIcon('role')}
             </th>
             <th onClick={() => handleSort('createdAt')}>
-              Ngày tạo
-              <FaSortUp className={sortField === 'createdAt' && sortOrder === 'asc' ? 'active' : ''} />
-              <FaSortDown className={sortField === 'createdAt' && sortOrder === 'desc' ? 'active' : ''} />
+              Ngày tạo {getSortIcon('createdAt')}
             </th>
             <th>Hành động</th>
           </tr>
