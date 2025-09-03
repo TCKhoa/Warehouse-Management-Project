@@ -12,7 +12,7 @@
   .top-controls {
     display: flex;
     flex-direction: column;
-    gap: 16px; // khoảng cách giữa pagination-control và filters
+    gap: 16px;
     margin-bottom: 20px;
 
     .pagination-control {
@@ -85,37 +85,60 @@
     border-collapse: collapse;
     background: white;
     border-radius: 8px;
-    overflow-x: visible;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    overflow: hidden; /* giữ bo góc */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #d1d5db; /* viền ngoài bảng */
 
-    th,
-    td {
-      border: 1px solid #ccc;
-      padding: 0.75rem;
-      text-align: center;
-      font-size: 0.95rem;
-      vertical-align: middle;
-    }
+    thead {
+      tr {
+        background-color: #DBEAFE;
+      }
 
-    th {
-      background-color: #DBEAFE;
-      user-select: none;
-      cursor: pointer;
+      th {
+        text-align: center;
+        padding: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+        border-bottom: 1px solid #d1d5db;
+        cursor: pointer;
+        user-select: none;
 
-      svg {
-        margin-left: 6px;
-        font-size: 0.7rem;
-        vertical-align: middle;
-        color: #999;
+        svg {
+          margin-left: 6px;
+          font-size: 0.7rem;
+          vertical-align: middle;
+          color: #999;
 
-        &.active {
-          color: #007bff;
+          &.active {
+            color: #007bff;
+          }
+        }
+
+        &:hover {
+          background-color: #dbeafe;
         }
       }
     }
 
-    tr:hover {
-      background-color: #f9f9f9;
+    tbody {
+      tr {
+        &:nth-child(even) {
+          background-color: #f9fafb;
+        }
+
+        &:hover {
+          background-color: #f1f5f9;
+        }
+
+        td {
+          text-align: center;
+          padding: 12px;
+          font-size: 14px;
+          color: #000000;
+          border-bottom: 1px solid #e5e7eb;
+        }
+      }
     }
     
     img {

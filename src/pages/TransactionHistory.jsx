@@ -9,6 +9,10 @@ export default function TransactionHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // 📌 Thêm state cho phân trang
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -26,15 +30,13 @@ export default function TransactionHistory() {
               0
             );
 
-            // Xử lý lấy tên người thực hiện chuẩn
             const user =
-  typeof r.createdBy === "string"
-    ? r.createdBy
-    : r.createdByUsername ||
-      r.userName ||
-      r.user?.name ||
-      "N/A";
-
+              typeof r.createdBy === "string"
+                ? r.createdBy
+                : r.createdByUsername ||
+                  r.userName ||
+                  r.user?.name ||
+                  "N/A";
 
             return {
               id: r.id,
@@ -75,9 +77,35 @@ export default function TransactionHistory() {
   if (loading) return <p>Đang tải dữ liệu...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
+  // 📌 Tính toán phân trang
+  const totalPages = Math.ceil(transactions.length / rowsPerPage);
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const currentTransactions = transactions.slice(start, end);
+
   return (
     <div className="transaction-history-page">
       <h2>📊 Lịch sử giao dịch</h2>
+
+      {/* Chọn số dòng mỗi trang */}
+      <div className="pagination-control">
+        <label>
+          Hiển thị
+          <select
+            value={rowsPerPage}
+            onChange={(e) => {
+              setRowsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+          </select>
+          giao dịch mỗi trang
+        </label>
+      </div>
+
       <div className="transaction-table-wrapper">
         <table className="transaction-table">
           <thead>
@@ -93,8 +121,8 @@ export default function TransactionHistory() {
             </tr>
           </thead>
           <tbody>
-            {transactions.length > 0 ? (
-              transactions.map((tx) => (
+            {currentTransactions.length > 0 ? (
+              currentTransactions.map((tx) => (
                 <tr key={tx.id}>
                   <td>{tx.code}</td>
                   <td className={tx.type === "Xuất kho" ? "export" : "import"}>
@@ -120,6 +148,33 @@ export default function TransactionHistory() {
           </tbody>
         </table>
       </div>
+
+      {/* 📌 Thanh phân trang */}
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            « Trước
+          </button>
+          {[...Array(totalPages)].map((_, idx) => (
+            <button
+              key={idx + 1}
+              onClick={() => setCurrentPage(idx + 1)}
+              className={currentPage === idx + 1 ? "active" : ""}
+            >
+              {idx + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Tiếp »
+          </button>
+        </div>
+      )}
     </div>
   );
 }

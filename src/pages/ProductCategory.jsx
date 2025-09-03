@@ -14,8 +14,6 @@ export default function ProductCategory() {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [confirmDeleteName, setConfirmDeleteName] = useState("");
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [selectedAll, setSelectedAll] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
 
   // ---------------- Lấy danh sách category từ API ----------------
   useEffect(() => {
@@ -85,22 +83,6 @@ export default function ProductCategory() {
     }
     setConfirmDeleteId(null);
     setConfirmDeleteName("");
-  };
-
-  // ---------------- Checkbox ----------------
-  const handleCheckAll = () => {
-    if (selectedAll) {
-      setSelectedItems([]);
-    } else {
-      setSelectedItems(categories.map((cat) => cat.id));
-    }
-    setSelectedAll(!selectedAll);
-  };
-
-  const handleCheckItem = (id) => {
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
   };
 
   const handleBackToAdd = () => {
@@ -174,13 +156,6 @@ export default function ProductCategory() {
         <table className="category-table">
           <thead>
             <tr>
-              <th>
-                <input
-                  type="checkbox"
-                  checked={selectedAll}
-                  onChange={handleCheckAll}
-                />
-              </th>
               <th>Tên</th>
               <th>Mô tả</th>
               <th>Đường dẫn</th>
@@ -190,13 +165,6 @@ export default function ProductCategory() {
           <tbody>
             {categories.map((cat) => (
               <tr key={cat.id}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.includes(cat.id)}
-                    onChange={() => handleCheckItem(cat.id)}
-                  />
-                </td>
                 <td>{cat.name}</td>
                 <td>{cat.description || "—"}</td>
                 <td>{cat.slug}</td>

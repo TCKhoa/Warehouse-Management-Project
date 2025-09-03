@@ -15,8 +15,6 @@ export default function ProductBrand() {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [confirmDeleteName, setConfirmDeleteName] = useState("");
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [selectedAll, setSelectedAll] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
 
   // Lấy danh sách thương hiệu từ backend
   const fetchBrands = async () => {
@@ -79,21 +77,6 @@ export default function ProductBrand() {
     } catch (error) {
       console.error("Lỗi khi xóa thương hiệu:", error);
     }
-  };
-
-  const handleCheckAll = () => {
-    if (selectedAll) {
-      setSelectedItems([]);
-    } else {
-      setSelectedItems(brands.map((brand) => brand.id));
-    }
-    setSelectedAll(!selectedAll);
-  };
-
-  const handleCheckItem = (id) => {
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
   };
 
   const handleBackToAdd = () => {
@@ -164,13 +147,6 @@ export default function ProductBrand() {
         <table className="category-table">
           <thead>
             <tr>
-              <th>
-                <input
-                  type="checkbox"
-                  checked={selectedAll}
-                  onChange={handleCheckAll}
-                />
-              </th>
               <th>Tên</th>
               <th>Mô tả</th>
               <th>Đường dẫn</th>
@@ -180,13 +156,6 @@ export default function ProductBrand() {
           <tbody>
             {brands.map((brand) => (
               <tr key={brand.id}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.includes(brand.id)}
-                    onChange={() => handleCheckItem(brand.id)}
-                  />
-                </td>
                 <td>{brand.name}</td>
                 <td>{brand.description || "—"}</td>
                 <td>{brand.slug}</td>

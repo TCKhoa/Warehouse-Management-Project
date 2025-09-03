@@ -3,23 +3,31 @@
 .staff-list-page {
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #ffffff; /* đổi nền toàn trang thành trắng */
+  background-color: #ffffff; /* nền toàn trang trắng */
   color: #333;
 
   h2 {
     font-size: 24px;
-    margin-bottom: 8px;
+    margin-bottom: 20px; /* ⬅️ tăng khoảng cách dưới tiêu đề */
     color: #111;
   }
 
-  .staff-filters {
-    margin-bottom: 12px;
+  /* chọn số dòng hiển thị */
+  .pagination-control {
     display: flex;
-    justify-self: flex-end;
+    align-items: center;
+    gap: 8px;
+    }
+
+  /* ô tìm kiếm */
+  .staff-filters {
+    margin-bottom: 24px; /* ⬅️ tạo thêm khoảng cách với bảng */
+    display: flex;
+    justify-content: flex-end;
 
     .search-input {
-      width: 280px;
-      max-width: 300px;
+      width: 340px; /* dài hơn mặc định */
+      max-width: 420px;
       padding: 8px 12px;
       border: 1px solid #ccc;
       border-radius: 6px;
@@ -33,21 +41,24 @@
     }
   }
 
+  /* bảng danh sách */
   .staff-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: #ffffff; /* nền table trắng */
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.08); /* bóng nhẹ */
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
 
     thead tr {
-      background-color: #e5f3fb; /* 🌟 nền của hàng tiêu đề */
+      background-color: #DBEAFE; /* header xanh nhạt */
     }
 
     th,
     td {
-      padding: 10px 12px;
+      padding: 12px;
       text-align: left;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #e5e7eb;
       font-size: 14px;
       color: #333;
     }
@@ -55,6 +66,8 @@
     th {
       cursor: pointer;
       position: relative;
+      font-weight: 600;
+      color: #1f2937;
 
       svg {
         margin-left: 4px;
@@ -67,26 +80,34 @@
           color: #0ea5e9;
         }
       }
+
+      &:hover {
+        background-color: #dbeafe;
+      }
     }
 
     tbody tr {
+      &:nth-child(even) {
+        background-color: #f9fafb;
+      }
+
       &:hover {
-        background-color: #f3f4f6; /* hover nhẹ */
+        background-color: #f1f5f9;
       }
     }
 
     button {
-      padding: 4px 10px;
+      padding: 6px 12px;
       border: none;
       border-radius: 4px;
-      background-color: #0ea5e9;
+      background-color: #3b82f6;
       color: white;
       font-size: 13px;
       cursor: pointer;
       transition: background-color 0.2s;
 
       &:hover {
-        background-color: #0284c7;
+        background-color: #2563eb;
       }
     }
   }
