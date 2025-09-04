@@ -1,111 +1,155 @@
 import React, { useEffect, useState } from "react";
+import api from "../services/api";
 import "../styles/Revenue.scss";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 export default function Revenue() {
-  const [transactions, setTransactions] = useState([]);
-  const [dailyRevenue, setDailyRevenue] = useState(0);
-  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
-  const [yearlyRevenue, setYearlyRevenue] = useState(0);
+  const [importReceipts, setImportReceipts] = useState([]);
+  const [exportReceipts, setExportReceipts] = useState([]);
+
+  const [dailyImportCount, setDailyImportCount] = useState(0);
+  const [dailyExportCount, setDailyExportCount] = useState(0);
+  const [monthlyImportCount, setMonthlyImportCount] = useState(0);
+  const [monthlyExportCount, setMonthlyExportCount] = useState(0);
+
+  const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
-    const data = [
-      {
-        id: "TX001",
-        type: "Nhập kho",
-        date: "2025-08-07",
-        value: 1500000,
-      },
-      {
-        id: "TX002",
-        type: "Xuất kho",
-        date: "2025-08-08",
-        value: 2500000,
-      },
-      {
-        id: "TX003",
-        type: "Xuất kho",
-        date: "2025-08-08",
-        value: 3000000,
-      },
-    ];
-    setTransactions(data);
+    const fetchData = async () => {
+      try {
+        const resImport = await api.getImportReceipts();
+        setImportReceipts(resImport.data || resImport);
+
+        const resExport = await api.getExportReceipts();
+        setExportReceipts(resExport.data || resExport);
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu:", error);
+      }
+    };
+    fetchData();
   }, []);
 
   useEffect(() => {
     const today = new Date();
-    let daily = 0;
-    let monthly = 0;
-    let yearly = 0;
+    const year = today.getFullYear();
+    const month = today.getMonth();
 
-    transactions.forEach((tx) => {
-      if (tx.type !== "Xuất kho") return;
+    let countDailyImport = 0,
+      countDailyExport = 0,
+      countMonthlyImport = 0,
+      countMonthlyExport = 0;
 
-      const date = new Date(tx.date);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const importCountByDay = Array(daysInMonth).fill(0);
+    const exportCountByDay = Array(daysInMonth).fill(0);
+
+    importReceipts.forEach((r) => {
+      const date = new Date(r.createdAt);
+      if (date.getFullYear() === year && date.getMonth() === month) {
+        importCountByDay[date.getDate() - 1] += 1;
+      }
       if (
-        date.getFullYear() === today.getFullYear() &&
-        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === year &&
+        date.getMonth() === month &&
         date.getDate() === today.getDate()
       ) {
-        daily += tx.value;
+        countDailyImport += 1;
+      }
+      if (date.getFullYear() === year && date.getMonth() === month) {
+        countMonthlyImport += 1;
+      }
+    });
+
+    exportReceipts.forEach((r) => {
+      const date = new Date(r.createdAt);
+      if (date.getFullYear() === year && date.getMonth() === month) {
+        exportCountByDay[date.getDate() - 1] += 1;
       }
       if (
-        date.getFullYear() === today.getFullYear() &&
-        date.getMonth() === today.getMonth()
+        date.getFullYear() === year &&
+        date.getMonth() === month &&
+        date.getDate() === today.getDate()
       ) {
-        monthly += tx.value;
+        countDailyExport += 1;
       }
-      if (date.getFullYear() === today.getFullYear()) {
-        yearly += tx.value;
+      if (date.getFullYear() === year && date.getMonth() === month) {
+        countMonthlyExport += 1;
       }
     });
 
-    setDailyRevenue(daily);
-    setMonthlyRevenue(monthly);
-    setYearlyRevenue(yearly);
-  }, [transactions]);
+    const chartDataTemp = [];
+    for (let i = 0; i < daysInMonth; i++) {
+      chartDataTemp.push({
+        name: `${i + 1}`,
+        "Nhập kho": importCountByDay[i],
+        "Xuất kho": exportCountByDay[i],
+      });
+    }
+
+    setDailyImportCount(countDailyImport);
+    setDailyExportCount(countDailyExport);
+    setMonthlyImportCount(countMonthlyImport);
+    setMonthlyExportCount(countMonthlyExport);
+    setChartData(chartDataTemp);
+  }, [importReceipts, exportReceipts]);
 
   const handleExportExcel = () => {
-    const exportData = transactions
-      .filter((tx) => tx.type === "Xuất kho")
-      .map((tx) => ({
-        "Mã giao dịch": tx.id,
-        "Ngày": tx.date,
-        "Giá trị (VND)": tx.value,
-      }));
+    const allTransactions = [
+      ...importReceipts.map((r) => ({
+        Loại: "Nhập kho",
+        "Mã phiếu": r.importCode || r.id,
+        "Ngày": r.createdAt,
+      })),
+      ...exportReceipts.map((r) => ({
+        Loại: "Xuất kho",
+        "Mã phiếu": r.exportCode || r.id,
+        "Ngày": r.createdAt,
+      })),
+    ];
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const worksheet = XLSX.utils.json_to_sheet(allTransactions);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Doanh thu");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Nhập - Xuất kho");
 
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-
-    const file = new Blob([excelBuffer], {
-      type: "application/octet-stream",
-    });
-    saveAs(file, "bao-cao-doanh-thu.xlsx");
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const file = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(file, "bao-cao-so-luong-phiếu.xlsx");
   };
 
   return (
     <div className="revenue-page">
-      <h2>📈 Báo cáo doanh thu</h2>
+      <h2>📊 Thống kê nhập - xuất kho (theo số phiếu)</h2>
 
       <div className="revenue-cards">
         <div className="card">
-          <h3>Tổng doanh thu hôm nay</h3>
-          <p>{dailyRevenue.toLocaleString()} VND</p>
+          <h3>Nhập kho hôm nay</h3>
+          <p>{dailyImportCount}</p>
         </div>
         <div className="card">
-          <h3>Tháng này</h3>
-          <p>{monthlyRevenue.toLocaleString()} VND</p>
+          <h3>Xuất kho hôm nay</h3>
+          <p>{dailyExportCount}</p>
+        </div>
+      </div>
+
+      <div className="revenue-cards">
+        <div className="card">
+          <h3>Nhập kho tháng này</h3>
+          <p>{monthlyImportCount}</p>
         </div>
         <div className="card">
-          <h3>Năm nay</h3>
-          <p>{yearlyRevenue.toLocaleString()} VND</p>
+          <h3>Xuất kho tháng này</h3>
+          <p>{monthlyExportCount}</p>
         </div>
       </div>
 
@@ -116,10 +160,17 @@ export default function Revenue() {
           </button>
         </div>
 
-        <p>
-          <i>[Biểu đồ doanh thu theo ngày/tháng]</i>
-        </p>
-        {/* Sau này bạn có thể tích hợp Chart.js hoặc Recharts ở đây */}
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis allowDecimals={false} />
+            <Tooltip />
+            <Legend />
+            <Line type="monotone" dataKey="Nhập kho" stroke="#4CAF50" />
+            <Line type="monotone" dataKey="Xuất kho" stroke="#FF5722" />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
