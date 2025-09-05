@@ -152,8 +152,9 @@ const CreateImportReceipt = () => {
             <option value="">-- Chọn sản phẩm --</option>
             {products.map((product) => (
               <option key={product.id} value={product.id}>
-                {product.name} ({product.code})
+                {product.name}{product.code ? ` (${product.code})` : ""}
               </option>
+
             ))}
           </select>
         </div>

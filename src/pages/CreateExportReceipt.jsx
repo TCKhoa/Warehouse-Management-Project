@@ -162,8 +162,13 @@ const CreateExportReceipt = () => {
             <option value="">-- Chọn người tạo --</option>
             {users.map((user) => (
               <option key={user.id} value={user.id}>
-                {user.name} ({user.username})
+                {user.username}
               </option>
+
+
+
+
+
             ))}
           </select>
         </div>
@@ -187,8 +192,9 @@ const CreateExportReceipt = () => {
             <option value="">-- Chọn sản phẩm --</option>
             {products.map((product) => (
               <option key={product.id} value={product.id}>
-                {product.name} ({product.code})
+                {product.name}{product.code ? ` (${product.code})` : ""}
               </option>
+
             ))}
           </select>
         </div>
