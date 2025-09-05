@@ -109,7 +109,7 @@ const LoginPage = () => {
               />
               Ghi nhớ đăng nhập
             </label>
-            <a href="#" className="forgot-password">
+            <a href="/forgot-password" className="forgot-password">
               Quên mật khẩu?
             </a>
           </div>

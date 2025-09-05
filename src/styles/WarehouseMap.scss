@@ -37,7 +37,7 @@
     border-collapse: collapse;
     margin-bottom: 28px;
     background: #fff;
-    border-radius: 14px;
+    // border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 5px 14px rgba(0, 0, 0, 0.15);
 
@@ -93,6 +93,23 @@
       transform: scale(0.96);
     }
   }
+}
+.view-btn{
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #11cd8e, #10c88d);
+  }
+
+  
 }
 
 @keyframes fadeIn {

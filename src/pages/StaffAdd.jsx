@@ -10,7 +10,7 @@ export default function StaffAdd() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [backendError, setBackendError] = useState(""); // 🌟 lỗi backend
+  const [backendError, setBackendError] = useState(""); // lỗi backend
 
   const [formData, setFormData] = useState({
     staffCode: "",
@@ -54,12 +54,27 @@ export default function StaffAdd() {
     }));
   };
 
+  // ✅ Hàm kiểm tra độ mạnh mật khẩu
+  const validatePassword = (password) => {
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(password);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setBackendError(""); // reset lỗi backend
+    setPasswordError("");
 
-    // Kiểm tra mật khẩu
+    // Kiểm tra mật khẩu mạnh
+    if (!validatePassword(formData.password)) {
+      setPasswordError(
+        "❌ Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt."
+      );
+      return;
+    }
+
+    // Kiểm tra mật khẩu nhập lại
     if (formData.password !== confirmPassword) {
       setPasswordError("❌ Mật khẩu nhập lại không khớp.");
       return;
@@ -128,11 +143,7 @@ export default function StaffAdd() {
 
         <div className="field">
           <label>Số điện thoại</label>
-          <input
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-          />
+          <input name="phone" value={formData.phone} onChange={handleChange} />
         </div>
 
         <div className="field">
@@ -142,7 +153,10 @@ export default function StaffAdd() {
               type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
-              onChange={handleChange}
+              onChange={(e) => {
+                setFormData({ ...formData, password: e.target.value });
+                setPasswordError(""); // xóa lỗi khi người dùng đang gõ
+              }}
               required
             />
             <button
@@ -153,6 +167,7 @@ export default function StaffAdd() {
               {showPassword ? "🙈 Ẩn" : "👁 Hiện"}
             </button>
           </div>
+          {passwordError && <p className="error">{passwordError}</p>}
         </div>
 
         <div className="field">
@@ -170,9 +185,7 @@ export default function StaffAdd() {
             <button
               type="button"
               className="toggle-btn"
-              onClick={() =>
-                setShowConfirmPassword(!showConfirmPassword)
-              }
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
               {showConfirmPassword ? "🙈 Ẩn" : "👁 Hiện"}
             </button>

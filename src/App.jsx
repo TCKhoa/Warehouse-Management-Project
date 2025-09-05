@@ -16,6 +16,7 @@ import HomePage from "./pages/HomePage";
 import Revenue from "./pages/Revenue";
 import TransactionHistory from "./pages/TransactionHistory";
 import LoginPage from "./pages/LoginPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ProductEdit from "./pages/ProductEdit";
 import ExportReceiptDetail from "./pages/ExportReceiptDetail";
 import CreateExportReceipt from "./pages/CreateExportReceipt";
@@ -71,7 +72,11 @@ function App() {
     <AuthContext.Provider value={{ token, setToken, handleLogin, handleLogout }}>
       <BrowserRouter>
         <Routes>
+          {/* Các route công khai, không cần token */}
           <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+          {/* Các route cần đăng nhập */}
           <Route element={<ProtectedRoute />}>
             <Route element={<MainLayout />}>
               <Route path="/" element={<HomePage />} />
@@ -96,6 +101,9 @@ function App() {
               <Route path="/history-logs" element={<HistoryLogsPage />} />
             </Route>
           </Route>
+
+          {/* Nếu không match route nào, redirect về login */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthContext.Provider>

@@ -1,3 +1,4 @@
+// src/pages/HomePage.jsx
 import React, { useState, useEffect } from "react";
 import MapWithPoints from "../components/MapWithPoints";
 import WarehouseMap from "../components/WarehouseMap";
@@ -6,13 +7,15 @@ import "../styles/HomePage.scss";
 
 export default function HomePage() {
   const [selectedArea, setSelectedArea] = useState(null);
-
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalEmployees: 0,
     importToday: 0,
     exportToday: 0,
   });
+  const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const zones = [
     { id: 1, label: "A", x: 41, y: 39.5 },
@@ -23,13 +26,23 @@ export default function HomePage() {
     { id: 6, label: "F", x: 56.5, y: 60.5 },
   ];
 
-  // Lấy dữ liệu từ API có sẵn
+  // Lấy role từ localStorage hoặc sessionStorage
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const today = new Date().toISOString().split("T")[0]; // yyyy-MM-dd
+    const storedRole = localStorage.getItem("role") || sessionStorage.getItem("role");
+    if (storedRole) setRole(storedRole.toLowerCase());
+  }, []);
 
-        // Gọi tất cả API song song
+  // Lấy dữ liệu thống kê chỉ khi role là admin
+  useEffect(() => {
+    if (!role || role !== "admin") return;
+
+    const fetchStats = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const today = new Date().toISOString().split("T")[0];
+
         const [products, users, importReceipts, exportReceipts] = await Promise.all([
           api.getProducts(),
           api.getUsers(),
@@ -37,59 +50,52 @@ export default function HomePage() {
           api.getExportReceipts(),
         ]);
 
-        // 1. Tổng sản phẩm
-        const totalProducts = products.length;
-
-        // 2. Tổng nhân viên
-        const totalEmployees = users.length;
-
-        // 3. Nhập hôm nay
-        const importToday = importReceipts.filter((item) =>
-          item.createdAt?.startsWith(today)
-        ).length;
-
-        // 4. Xuất hôm nay
-        const exportToday = exportReceipts.filter((item) =>
-          item.createdAt?.startsWith(today)
-        ).length;
-
-        // Cập nhật state
         setStats({
-          totalProducts,
-          totalEmployees,
-          importToday,
-          exportToday,
+          totalProducts: products.length,
+          totalEmployees: users.length,
+          importToday: importReceipts.filter(item => item.createdAt?.startsWith(today)).length,
+          exportToday: exportReceipts.filter(item => item.createdAt?.startsWith(today)).length,
         });
-      } catch (error) {
-        console.error("Lỗi khi lấy thống kê:", error);
+      } catch (err) {
+        console.error("Lỗi khi lấy thống kê:", err);
+        setError("Không thể tải thống kê. Vui lòng thử lại sau.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchStats();
-  }, []);
+  }, [role]);
 
   return (
     <div className="homepage">
       <h2>Dashboard kho hàng</h2>
 
-      <div className="stats-grid">
-        <div className="stats-card">
-          <h4>Tổng sản phẩm</h4>
-          <div className="value">{stats.totalProducts}</div>
+      {/* Thông báo lỗi hoặc loading */}
+      {error && <div className="error">{error}</div>}
+      {loading && <div className="loading">Đang tải thống kê...</div>}
+
+      {/* Chỉ hiển thị stats-grid nếu role là admin */}
+      {role === "admin" && !loading && !error && (
+        <div className="stats-grid">
+          <div className="stats-card">
+            <h4>Tổng sản phẩm</h4>
+            <div className="value">{stats.totalProducts}</div>
+          </div>
+          <div className="stats-card">
+            <h4>Tổng nhân viên</h4>
+            <div className="value">{stats.totalEmployees}</div>
+          </div>
+          <div className="stats-card">
+            <h4>Nhập hôm nay</h4>
+            <div className="value">{stats.importToday}</div>
+          </div>
+          <div className="stats-card">
+            <h4>Xuất hôm nay</h4>
+            <div className="value">{stats.exportToday}</div>
+          </div>
         </div>
-        <div className="stats-card">
-          <h4>Tổng nhân viên</h4>
-          <div className="value">{stats.totalEmployees}</div>
-        </div>
-        <div className="stats-card">
-          <h4>Nhập hôm nay</h4>
-          <div className="value">{stats.importToday}</div>
-        </div>
-        <div className="stats-card">
-          <h4>Xuất hôm nay</h4>
-          <div className="value">{stats.exportToday}</div>
-        </div>
-      </div>
+      )}
 
       <div className="map-section">
         <h3>Sơ đồ kho hàng</h3>

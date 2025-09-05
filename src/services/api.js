@@ -321,6 +321,24 @@ markHistoryLogAsUnread: async (id) => {
     return new EventSource(`${API_BASE_URL}/api/history-logs/stream`);
   },
 
+  // ---------- AUTH / FORGOT PASSWORD ----------
+sendOtp: async (data) => {
+  // data: { email: string }
+  const response = await apiClient.post("/auth/send-otp", data, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return response.data;
+},
+
+resetPassword: async (data) => {
+  // data: { email: string, otp: string, newPassword: string }
+  const response = await apiClient.post("/auth/reset-password", data, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return response.data;
+},
+
+
 };
 
 export default api;
