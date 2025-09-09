@@ -15,23 +15,24 @@
     margin-bottom: 32px;
 
     .stats-card {
-      background: #f8f6f6;
+      background: #0f73f5f5;
       border-radius: 12px;
       box-shadow: 0 6px 10px rgba(0,0,0,0.1);
       padding: 16px;
       text-align: center;
+      
 
       h4 {
-        font-size: 14px;
+        font-size: 1.2rem;
         font-weight: 600;
-        color: #555;
+        color: #ffffff;
         margin-bottom: 8px;
       }
 
       .value {
-        font-size: 20px;
+        font-size: 1.5rem;
         font-weight: bold;
-        color: #111;
+        color: #ffffff;
       }
     }
   }
