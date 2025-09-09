@@ -126,6 +126,7 @@ export default function StaffAdd() {
             name="username"
             value={formData.username}
             onChange={handleChange}
+            placeholder="Nguyễn Văn A"
             required
           />
         </div>
@@ -137,6 +138,7 @@ export default function StaffAdd() {
             name="email"
             value={formData.email}
             onChange={handleChange}
+            placeholder="example@gmail.com"
             required
           />
         </div>

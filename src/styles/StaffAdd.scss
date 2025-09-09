@@ -1,5 +1,6 @@
 .staff-add {
   max-width: 700px;
+  width: 100%; // ✅ Đảm bảo không vượt giới hạn layout cha
   margin: 0 auto;
   padding: 24px;
   background: #fff;
@@ -23,7 +24,7 @@
       label {
         font-weight: 600;
         margin-bottom: 6px;
-        color:#333
+        color: #333;
       }
 
       input,
@@ -32,14 +33,18 @@
         border: 1px solid #ccc;
         border-radius: 6px;
         font-size: 16px;
+        box-sizing: border-box; // ✅ giúp input không tràn khi có padding
+        width: 100%;
       }
 
       .password-wrapper {
         position: relative;
+        width: 100%; // ✅ Quan trọng để tránh tràn layout
 
         input {
           width: 100%;
           padding-right: 80px;
+          box-sizing: border-box; // ✅ đảm bảo padding không làm input rộng hơn container
         }
 
         .toggle-btn {
@@ -51,6 +56,7 @@
           border: none;
           cursor: pointer;
           font-size: 14px;
+          white-space: nowrap; // ✅ tránh bị xuống dòng
         }
       }
 
@@ -82,8 +88,10 @@
     }
   }
 }
+
+
 .error {
-        color: red;
-        font-size: 18px;
-        margin-top: 4px;
-      }
+  color: red;
+  font-size: 18px;
+  margin-top: 4px;
+}
