@@ -28,9 +28,12 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
+      // ❌ Tránh reload cứng trang → chỉ xoá token
       localStorage.removeItem("token");
       sessionStorage.removeItem("token");
-      window.location.href = "/login";
+      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
+      // để AuthProvider hoặc LoginPage tự xử lý redirect
     }
     return Promise.reject(error);
   }
@@ -44,6 +47,14 @@ const api = {
       headers: { "Content-Type": "application/json" },
     });
     return response.data;
+  },
+
+  verifyToken: async (token) => {
+    // BE nên có endpoint: GET /auth/verify hoặc /users/me
+    const res = await apiClient.get("/auth/verify", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data; // giả sử trả về user profile
   },
 
   // ---------- USERS ----------
@@ -80,7 +91,7 @@ const api = {
       imageUrl: p.imageUrl
         ? p.imageUrl.startsWith("http")
           ? p.imageUrl
-          : `http://localhost:8080/${p.imageUrl.replace(/^\//, "")}`
+          : `${API_BASE_URL}/${p.imageUrl.replace(/^\//, "")}`
         : null,
     }));
   },
@@ -278,67 +289,59 @@ const api = {
   },
 
   // ---------- HISTORY LOGS ----------
-  // ---------- HISTORY LOGS ----------
-getHistoryLogs: async () => {
-  const response = await apiClient.get("/history-logs");
-  return response.data.map((l) => ({ ...l, isRead: Boolean(l.isRead) }));
-},
-getUnreadHistoryLogs: async () => {
-  const response = await apiClient.get("/history-logs/unread");
-  return response.data.map((l) => ({ ...l, isRead: Boolean(l.isRead) }));
-},
-getHistoryLogById: async (id) => {
-  const res = await apiClient.get(`/history-logs/${id}`);
-  return { ...res.data, isRead: Boolean(res.data.isRead) };
-},
-createHistoryLog: async (data) => {
-  const res = await apiClient.post("/history-logs", data, {
-    headers: { "Content-Type": "application/json" },
-  });
-  return { ...res.data, isRead: Boolean(res.data.isRead) };
-},
-deleteHistoryLog: async (id) => {
-  const res = await apiClient.delete(`/history-logs/${id}`);
-  return res.data;
-},
-markHistoryLogAsRead: async (id) => {
-  const res = await apiClient.patch(`/history-logs/${id}/read`, null, {
-    headers: { "Content-Type": "application/json" },
-  });
-  return res.data;
-},
+  getHistoryLogs: async () => {
+    const response = await apiClient.get("/history-logs");
+    return response.data.map((l) => ({ ...l, isRead: Boolean(l.isRead) }));
+  },
+  getUnreadHistoryLogs: async () => {
+    const response = await apiClient.get("/history-logs/unread");
+    return response.data.map((l) => ({ ...l, isRead: Boolean(l.isRead) }));
+  },
+  getHistoryLogById: async (id) => {
+    const res = await apiClient.get(`/history-logs/${id}`);
+    return { ...res.data, isRead: Boolean(res.data.isRead) };
+  },
+  createHistoryLog: async (data) => {
+    const res = await apiClient.post("/history-logs", data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return { ...res.data, isRead: Boolean(res.data.isRead) };
+  },
+  deleteHistoryLog: async (id) => {
+    const res = await apiClient.delete(`/history-logs/${id}`);
+    return res.data;
+  },
+  markHistoryLogAsRead: async (id) => {
+    const res = await apiClient.patch(`/history-logs/${id}/read`, null, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return res.data;
+  },
+  markHistoryLogAsUnread: async (id) => {
+    const res = await apiClient.patch(`/history-logs/${id}/unread`, null, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return res.data;
+  },
 
-markHistoryLogAsUnread: async (id) => {
-  const res = await apiClient.patch(`/history-logs/${id}/unread`, null, {
-    headers: { "Content-Type": "application/json" },
-  });
-  return res.data;
-},
-
-// ---------- SSE: subscribe history logs ----------
+  // ---------- SSE: subscribe history logs ----------
   subscribeHistoryLogs: () => {
-    // Trả về EventSource để Sidebar hoặc component khác dùng
     return new EventSource(`${API_BASE_URL}/api/history-logs/stream`);
   },
 
   // ---------- AUTH / FORGOT PASSWORD ----------
-sendOtp: async (data) => {
-  // data: { email: string }
-  const response = await apiClient.post("/auth/send-otp", data, {
-    headers: { "Content-Type": "application/json" },
-  });
-  return response.data;
-},
-
-resetPassword: async (data) => {
-  // data: { email: string, otp: string, newPassword: string }
-  const response = await apiClient.post("/auth/reset-password", data, {
-    headers: { "Content-Type": "application/json" },
-  });
-  return response.data;
-},
-
-
+  sendOtp: async (data) => {
+    const response = await apiClient.post("/auth/send-otp", data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
+  resetPassword: async (data) => {
+    const response = await apiClient.post("/auth/reset-password", data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  },
 };
 
 export default api;

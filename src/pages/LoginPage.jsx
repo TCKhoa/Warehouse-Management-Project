@@ -16,8 +16,10 @@ const LoginPage = () => {
   const { handleLogin } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // Nếu đã có token thì tự động chuyển hướng
   useEffect(() => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
     if (token) navigate("/staff", { replace: true });
   }, [navigate]);
 
@@ -33,10 +35,14 @@ const LoginPage = () => {
         throw new Error("Dữ liệu phản hồi không hợp lệ");
       }
 
-      // Lưu token
-      handleLogin(data.token, rememberMe);
+      // Lưu token qua AuthContext
+      handleLogin(data.token, rememberMe, {
+        role: data.role,
+        email: data.email,
+        username: data.username,
+      });
 
-      // Lưu thông tin user
+      // Lưu thêm thông tin user để tiện sử dụng
       if (rememberMe) {
         localStorage.setItem("role", data.role);
         localStorage.setItem("email", data.email);
@@ -47,12 +53,19 @@ const LoginPage = () => {
         sessionStorage.setItem("username", data.username);
       }
 
+      // Điều hướng sau khi login thành công
       navigate("/", { replace: true });
     } catch (err) {
+      console.log("Login error:", err.response || err); // Debug
+
+      // Xử lý nhiều dạng trả về từ BE
       const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Email hoặc mật khẩu không đúng";
+        typeof err.response?.data === "string"
+          ? err.response.data
+          : err.response?.data?.message ||
+            err.message ||
+            "Email hoặc mật khẩu không đúng";
+
       setError(message);
     } finally {
       setLoading(false);
@@ -60,7 +73,10 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-page" style={{ backgroundImage: `url(${bgImage})` }}>
+    <div
+      className="login-page"
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
       <div className="login-container">
         <h2 className="shiny-text">LOGIN</h2>
         <form onSubmit={handleSubmit}>

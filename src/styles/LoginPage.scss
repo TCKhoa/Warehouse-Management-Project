@@ -42,6 +42,7 @@ h2 {
     box-sizing: border-box;
     padding-right: 2.5rem;
   }
+  
 }
 
 .checkbox-container {
@@ -112,11 +113,11 @@ h2 {
   position: relative;
   width: 100%;
 
-  input {
-    width: 100%;
-    padding-right: 2.5rem;
-    box-sizing: border-box;
-  }
+  // input {
+  //   width: 100%;
+    
+  //   box-sizing: border-box;
+  // }
 
   .toggle-password {
     position: absolute;
